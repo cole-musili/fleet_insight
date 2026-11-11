@@ -1,0 +1,15 @@
+<!-- File: templates/imports/upload.html -->
+
+{% extends "base.html" %}
+
+{% block title %}Data Import Centre | Fleet Insights{% endblock %}
+{% block page_title %}Data Import Centre{% endblock %}
+
+{% block content %}
+{% include "imports/_upload_styles.html" %}
+{% include "imports/_upload_content.html" %}
+{% endblock %}
+
+{% block extra_js %}
+{% include "imports/_upload_scripts.html" %}
+{% endblock %}

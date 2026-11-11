@@ -1,0 +1,144 @@
+<!-- File: templates/deletion_center/confirm_delete.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .confirm-page {
+        max-width: 650px;
+        margin: 45px auto;
+        padding: 20px;
+    }
+
+    .confirm-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 28px;
+    }
+
+    .confirm-card h2 {
+        font-weight: 700;
+        margin: 0 0 12px;
+    }
+
+    .confirm-warning {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        border-radius: 9px;
+        padding: 14px;
+        margin: 20px 0;
+        font-size: 14px;
+    }
+
+    .confirm-label {
+        display: block;
+        font-weight: 600;
+        margin: 18px 0 7px;
+    }
+
+    .confirm-input {
+        width: 100%;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 11px 13px;
+        box-sizing: border-box;
+    }
+
+    .confirm-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .confirm-btn {
+        border: 0;
+        border-radius: 8px;
+        padding: 11px 18px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .confirm-btn-danger {
+        background: #b91c1c;
+        color: white;
+    }
+
+    .confirm-btn-cancel {
+        background: #f1f5f9;
+        color: #334155;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    @media (max-width: 600px) {
+        .confirm-page {
+            margin: 20px auto;
+            padding: 12px;
+        }
+
+        .confirm-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="confirm-page">
+
+    <div class="confirm-card">
+
+        <h2>{{ page_title|default:"Confirm Deletion" }}</h2>
+
+        <p>
+            You are about to perform the following operation:
+        </p>
+
+        <p>
+            <strong>{{ target_label }}</strong>
+        </p>
+
+        <div class="confirm-warning">
+            {{ warning_message|default:"Please review this action carefully before continuing." }}
+        </div>
+
+        <form method="POST" action="{{ form_action }}">
+            {% csrf_token %}
+
+            <label for="deletion_reason" class="confirm-label">
+                Reason for this operation
+            </label>
+
+            <textarea id="deletion_reason" name="reason" class="confirm-input" rows="4"
+                placeholder="Enter the reason..."></textarea>
+
+            <label for="confirmation_text" class="confirm-label">
+                Type the confirmation text:
+                <strong>{{ confirmation_phrase }}</strong>
+            </label>
+
+            <input type="text" id="confirmation_text" name="confirmation_text" class="confirm-input" required
+                autocomplete="off">
+
+            <div class="confirm-actions">
+
+                <button type="submit" class="confirm-btn confirm-btn-danger">
+                    Confirm Operation
+                </button>
+
+                <a href="{{ cancel_url|default:'/' }}" class="confirm-btn confirm-btn-cancel">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

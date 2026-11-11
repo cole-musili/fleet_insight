@@ -1,0 +1,445 @@
+<!-- File: templates/deletion_center/dashboard.html -->
+
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .dc-page {
+        max-width: 1450px;
+        margin: 0 auto;
+    }
+
+    .dc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 22px;
+    }
+
+    .dc-header h2 {
+        font-size: 25px;
+        font-weight: 750;
+        margin: 0 0 5px;
+        color: var(--text-main);
+    }
+
+    .dc-header p {
+        color: var(--text-muted);
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .dc-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+    }
+
+    .dc-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid transparent;
+    }
+
+    .dc-btn-primary {
+        background: var(--primary);
+        color: #fff;
+    }
+
+    .dc-btn-primary:hover {
+        background: var(--primary-dark);
+        color: #fff;
+    }
+
+    .dc-btn-outline {
+        border-color: var(--border);
+        background: #fff;
+        color: var(--text-main);
+    }
+
+    .dc-btn-outline:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .dc-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 15px;
+        margin-bottom: 22px;
+    }
+
+    .dc-stat,
+    .dc-panel {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+    }
+
+    .dc-stat {
+        padding: 19px;
+    }
+
+    .dc-stat-label {
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .dc-stat-value {
+        color: var(--text-main);
+        font-size: 29px;
+        font-weight: 800;
+        margin-top: 10px;
+    }
+
+    .dc-stat-note {
+        color: var(--text-muted);
+        font-size: 11px;
+        margin-top: 3px;
+    }
+
+    .dc-panel {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .dc-panel-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .dc-panel-heading h5 {
+        font-size: 16px;
+        font-weight: 750;
+        margin: 0;
+        color: var(--text-main);
+    }
+
+    .dc-panel-heading p {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin: 4px 0 0;
+    }
+
+    .dc-category-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .dc-category {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        min-width: 0;
+    }
+
+    .dc-category h6 {
+        font-size: 14px;
+        font-weight: 750;
+        margin: 0 0 12px;
+    }
+
+    .dc-counts {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+
+    .dc-counts span {
+        color: var(--text-muted);
+        font-size: 11px;
+    }
+
+    .dc-counts strong {
+        color: var(--text-main);
+    }
+
+    .dc-category form {
+        border-top: 1px solid var(--border);
+        padding-top: 12px;
+    }
+
+    .dc-category label {
+        display: block;
+        font-size: 11px;
+        font-weight: 650;
+        color: var(--text-muted);
+        margin: 8px 0 5px;
+    }
+
+    .dc-category input {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        padding: 9px 10px;
+        font-size: 12px;
+    }
+
+    .dc-category .dc-danger-btn {
+        margin-top: 10px;
+        width: 100%;
+        border: 1px solid #f0ceca;
+        background: #fff5f4;
+        color: #b42318;
+        border-radius: 7px;
+        padding: 9px;
+        font-size: 11px;
+        font-weight: 750;
+    }
+
+    .dc-category .dc-danger-btn:hover {
+        background: #feeceb;
+    }
+
+    .dc-warning {
+        font-size: 11px;
+        color: #9a5b12;
+        background: #fff8e8;
+        border-radius: 7px;
+        padding: 9px;
+        margin-top: 10px;
+    }
+
+    .dc-table-wrap {
+        overflow-x: auto;
+    }
+
+    .dc-table {
+        width: 100%;
+        min-width: 650px;
+        border-collapse: collapse;
+    }
+
+    .dc-table th,
+    .dc-table td {
+        padding: 12px 13px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        font-size: 12px;
+    }
+
+    .dc-table th {
+        color: var(--text-muted);
+        background: #f8faf9;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .dc-table tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .dc-status {
+        display: inline-block;
+        padding: 5px 8px;
+        border-radius: 20px;
+        background: #f1f5f3;
+        color: #52635a;
+        font-size: 10px;
+        font-weight: 750;
+    }
+
+    .dc-status.completed {
+        background: #e8f7ee;
+        color: #198754;
+    }
+
+    .dc-status.partial {
+        background: #fff7e6;
+        color: #a66b12;
+    }
+
+    .dc-status.failed {
+        background: #fff0ee;
+        color: #c0392b;
+    }
+
+    @media(max-width:768px) {
+        .dc-header h2 {
+            font-size: 21px;
+        }
+
+        .dc-actions,
+        .dc-actions a {
+            width: 100%;
+        }
+
+        .dc-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .dc-category-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dc-panel {
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="dc-page">
+
+    <div class="dc-header">
+        <div>
+            <h2>Deletion Centre</h2>
+            <p>Control record removal, recovery and permanent data cleanup.</p>
+        </div>
+
+        <div class="dc-actions">
+            <a href="{% url 'deletion_center:manage_records' %}" class="dc-btn dc-btn-primary">
+                <i class="bi bi-trash3"></i> Manage Records
+            </a>
+            <a href="{% url 'deletion_center:recycle_bin' %}" class="dc-btn dc-btn-outline">
+                <i class="bi bi-recycle"></i> Recycle Bin
+            </a>
+            <a href="{% url 'deletion_center:history' %}" class="dc-btn dc-btn-outline">
+                <i class="bi bi-clock-history"></i> Deletion History
+            </a>
+        </div>
+    </div>
+
+
+    <div class="dc-stats">
+        <div class="dc-stat">
+            <div class="dc-stat-label">Active Records</div>
+            <div class="dc-stat-value">{{ active_record_count }}</div>
+            <div class="dc-stat-note">Records currently in use</div>
+        </div>
+
+        <div class="dc-stat">
+            <div class="dc-stat-label">Records in Recycle Bin</div>
+            <div class="dc-stat-value">{{ recycle_bin_count }}</div>
+            <div class="dc-stat-note">Records available for restoration or cleanup</div>
+        </div>
+
+        <div class="dc-stat">
+            <div class="dc-stat-label">Recent Operations</div>
+            <div class="dc-stat-value">{{ recent_operations|length }}</div>
+            <div class="dc-stat-note">Latest recorded deletion operations</div>
+        </div>
+    </div>
+
+
+    <div class="dc-panel">
+        <div class="dc-panel-heading">
+            <div>
+                <h5>Record Categories</h5>
+                <p>Review category totals or move all active records in a category to the Recycle Bin.</p>
+            </div>
+        </div>
+
+        <div class="dc-category-grid">
+            {% for category in categories %}
+            <div class="dc-category">
+                <h6>{{ category.label }}</h6>
+
+                <div class="dc-counts">
+                    <span>Active: <strong>{{ category.active_count }}</strong></span>
+                    <span>In Recycle Bin: <strong>{{ category.deleted_count }}</strong></span>
+                </div>
+
+                <a class="dc-btn dc-btn-outline w-100 mb-2"
+                    href="{% url 'deletion_center:manage_records' %}?category={{ category.key }}">
+                    <i class="bi bi-list-check"></i> Select Records
+                </a>
+
+                <form method="POST" action="{% url 'deletion_center:delete_category' %}"
+                    onsubmit="return confirm('This will move every active record in this category to the Recycle Bin. Continue?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="category" value="{{ category.key }}">
+
+                    <label>Reason for category deletion</label>
+                    <input type="text" name="reason" required maxlength="500"
+                        placeholder="Explain why these records are being removed">
+
+                    <label>Type DELETE CATEGORY to confirm</label>
+                    <input type="text" name="confirmation" required placeholder="DELETE CATEGORY">
+
+                    <button type="submit" class="dc-danger-btn">
+                        <i class="bi bi-trash3 me-1"></i> Move Entire Category to Recycle Bin
+                    </button>
+                </form>
+
+                <div class="dc-warning">
+                    This is a soft deletion. Records can be restored from the Recycle Bin.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <div class="dc-panel">
+        <div class="dc-panel-heading">
+            <div>
+                <h5>Recent Deletion Operations</h5>
+                <p>Latest activity recorded by the system.</p>
+            </div>
+            <a href="{% url 'deletion_center:history' %}" class="dc-btn dc-btn-outline">
+                View full history
+            </a>
+        </div>
+
+        <div class="dc-table-wrap">
+            <table class="dc-table">
+                <thead>
+                    <tr>
+                        <th>Operation</th>
+                        <th>Target</th>
+                        <th>Scope</th>
+                        <th>Status</th>
+                        <th>Successful / Total</th>
+                        <th>Initiated By</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for operation in recent_operations %}
+                    <tr>
+                        <td>{{ operation.get_action_display }}</td>
+                        <td>{{ operation.target_label }}</td>
+                        <td>{{ operation.get_scope_display }}</td>
+                        <td>
+                            <span class="dc-status {{ operation.status }}">
+                                {{ operation.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ operation.successful_records }} / {{ operation.total_records }}</td>
+                        <td>{{ operation.initiated_by|default:"System" }}</td>
+                        <td>{{ operation.created_at|date:"d M Y, H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">No deletion operations have been recorded yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

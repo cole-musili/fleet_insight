@@ -1,0 +1,298 @@
+<!-- File: templates/deletion_center/category_delete.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .category-delete-page {
+        max-width: 850px;
+        margin: 35px auto;
+        padding: 20px;
+    }
+
+    .category-delete-header {
+        margin-bottom: 25px;
+    }
+
+    .category-delete-header h2 {
+        font-weight: 700;
+        margin: 0 0 8px;
+    }
+
+    .category-delete-header p {
+        color: #64748b;
+        margin: 0;
+    }
+
+    .category-delete-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 13px;
+        padding: 25px;
+    }
+
+    .category-field {
+        margin-bottom: 20px;
+    }
+
+    .category-field label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #334155;
+    }
+
+    .category-field select,
+    .category-field textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #fff;
+        box-sizing: border-box;
+        font: inherit;
+    }
+
+    .category-field select:focus,
+    .category-field textarea:focus {
+        outline: none;
+        border-color: #0f766e;
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, .12);
+    }
+
+    .category-summary {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 9px;
+        padding: 17px;
+        margin: 20px 0;
+    }
+
+    .category-summary strong {
+        font-size: 25px;
+        display: block;
+        margin-top: 5px;
+        color: #0f172a;
+    }
+
+    .category-warning {
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+        color: #9a3412;
+        padding: 14px;
+        border-radius: 9px;
+        margin: 20px 0;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .category-confirmation {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin: 20px 0;
+        font-size: 13px;
+        color: #334155;
+    }
+
+    .category-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 25px;
+    }
+
+    .category-btn {
+        border: 0;
+        border-radius: 8px;
+        padding: 12px 18px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .category-btn-danger {
+        background: #b91c1c;
+        color: #fff;
+    }
+
+    .category-btn-danger:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+    }
+
+    .category-btn-cancel {
+        background: #f1f5f9;
+        color: #334155;
+    }
+
+    .category-help {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: 7px;
+    }
+
+    @media (max-width: 600px) {
+        .category-delete-page {
+            margin: 15px auto;
+            padding: 12px;
+        }
+
+        .category-delete-card {
+            padding: 18px;
+        }
+
+        .category-actions {
+            flex-direction: column;
+        }
+
+        .category-btn {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    }
+</style>
+
+<div class="category-delete-page">
+
+    <div class="category-delete-header">
+        <h2>Category Deletion</h2>
+        <p>
+            Move all active records from a selected category
+            into the recycle bin.
+        </p>
+    </div>
+
+    <div class="category-delete-card">
+
+        <form method="POST" action="{{ form_action|default:'' }}" id="categoryDeleteForm">
+
+            {% csrf_token %}
+
+            <div class="category-field">
+                <label for="category">Select category</label>
+
+                <select name="category" id="category" required>
+                    <option value="">Choose a category</option>
+
+                    {% for category in categories %}
+                    <option value="{{ category.key }}" data-count="{{ category.active_count }}">
+                        {{ category.label }}
+                        ({{ category.active_count }} active records)
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <div class="category-help">
+                    Only active records will be moved to the recycle bin.
+                </div>
+            </div>
+
+            <div class="category-summary">
+                <span>Records selected for deletion</span>
+                <strong id="selectedCount">0</strong>
+            </div>
+
+            <div class="category-field">
+                <label for="reason">Reason for deletion</label>
+
+                <textarea name="reason" id="reason" rows="4"
+                    placeholder="Explain why these records are being removed..." required></textarea>
+            </div>
+
+            <div class="category-warning">
+                <strong>Important:</strong>
+                This action moves all active records in the selected
+                category into the recycle bin. The records are not
+                permanently removed and can be restored later.
+
+                Related records and dependencies must be handled
+                according to the system's relationship rules.
+            </div>
+
+            <div class="category-confirmation">
+                <input type="checkbox" id="confirmCategory" required>
+
+                <label for="confirmCategory">
+                    I have reviewed the selected category and understand
+                    that all its active records will be moved to the recycle bin.
+                </label>
+            </div>
+
+            <div class="category-actions">
+
+                <button type="submit" class="category-btn category-btn-danger" id="submitCategoryDelete" disabled>
+                    Move Category to Recycle Bin
+                </button>
+
+                <a href="{% url 'deletion_center:dashboard' %}" class="category-btn category-btn-cancel">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const categorySelect = document.getElementById("category");
+        const selectedCount = document.getElementById("selectedCount");
+        const confirmation = document.getElementById("confirmCategory");
+        const submitButton = document.getElementById("submitCategoryDelete");
+        const reason = document.getElementById("reason");
+        const form = document.getElementById("categoryDeleteForm");
+
+        function updateSummary() {
+            const selectedOption =
+                categorySelect.options[categorySelect.selectedIndex];
+
+            const count = selectedOption
+                ? selectedOption.dataset.count || 0
+                : 0;
+
+            selectedCount.textContent = count;
+            updateButton();
+        }
+
+        function updateButton() {
+            submitButton.disabled = !(
+                categorySelect.value &&
+                confirmation.checked &&
+                reason.value.trim()
+            );
+        }
+
+        categorySelect.addEventListener("change", updateSummary);
+        confirmation.addEventListener("change", updateButton);
+        reason.addEventListener("input", updateButton);
+
+        form.addEventListener("submit", function (event) {
+            const selectedOption =
+                categorySelect.options[categorySelect.selectedIndex];
+
+            const categoryName = selectedOption.textContent.trim();
+
+            const confirmed = window.confirm(
+                "Are you sure you want to move all active records in " +
+                categoryName +
+                " to the recycle bin?"
+            );
+
+            if (!confirmed) {
+                event.preventDefault();
+            }
+        });
+
+    });
+</script>
+
+{% endblock %}

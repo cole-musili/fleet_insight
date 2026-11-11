@@ -1,0 +1,1062 @@
+<!-- File: templates/reports/dashboard.html -->
+
+{% extends "base.html" %}
+
+{% block title %}Reports Centre | Fleet Insights{% endblock %}
+
+{% block content %}
+
+<style>
+    .report-page {
+        min-width: 0;
+    }
+
+    .report-hero {
+        background: linear-gradient(120deg, #104b35, #16734b);
+        color: white;
+        border-radius: 16px;
+        padding: 25px;
+    }
+
+    .report-card {
+        background: var(--bs-body-bg, #fff);
+        border: 1px solid #e5ebe7;
+        border-radius: 14px;
+        padding: 18px;
+        height: 100%;
+        box-shadow: 0 3px 14px rgba(20, 36, 58, .035);
+    }
+
+    .report-number {
+        font-size: clamp(1.6rem, 4vw, 2.3rem);
+        font-weight: 800;
+        letter-spacing: -.04em;
+    }
+
+    .report-label {
+        font-size: .82rem;
+        color: #718096;
+    }
+
+    .report-icon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: #e9f5ee;
+        color: #16734b;
+        font-size: 1.2rem;
+    }
+
+    .report-heading {
+        font-weight: 750;
+        letter-spacing: -.03em;
+    }
+
+    .report-subtitle {
+        color: #718096;
+        font-size: .85rem;
+    }
+
+    .filter-panel {
+        background: var(--bs-body-bg, #fff);
+        border: 1px solid #e5ebe7;
+        border-radius: 14px;
+        padding: 20px;
+    }
+
+    .filter-panel label {
+        font-size: .78rem;
+        font-weight: 700;
+        color: #718096;
+        margin-bottom: 6px;
+    }
+
+    .filter-panel .form-select {
+        min-height: 42px;
+        border-radius: 9px;
+        font-size: .86rem;
+    }
+
+    .report-table {
+        font-size: .83rem;
+        margin-bottom: 0;
+    }
+
+    .report-table th {
+        white-space: nowrap;
+        background: #f2f6f3;
+        color: #64746a;
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        padding: 12px;
+    }
+
+    .report-table td {
+        padding: 12px;
+        vertical-align: middle;
+    }
+
+    .report-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .report-actions .btn {
+        border-radius: 9px;
+        font-weight: 600;
+    }
+
+    .quality-track {
+        height: 7px;
+        border-radius: 10px;
+        background: #edf1ee;
+        overflow: hidden;
+        margin-top: 9px;
+    }
+
+    .quality-track div {
+        height: 100%;
+        background: #d69e36;
+        border-radius: 10px;
+    }
+
+    .status-active {
+        background: #e8f5ed;
+        color: #16804e;
+    }
+
+    .status-expired {
+        background: #fdecec;
+        color: #b42318;
+    }
+
+    .status-upcoming {
+        background: #fff3d8;
+        color: #98651b;
+    }
+
+    .status-badge {
+        border-radius: 20px;
+        padding: 5px 10px;
+        font-size: .72rem;
+        font-weight: 700;
+    }
+
+    .report-section-title {
+        font-size: .98rem;
+        font-weight: 750;
+    }
+
+    @media(max-width:767px) {
+        .report-hero {
+            padding: 18px;
+        }
+
+        .report-card {
+            padding: 14px;
+        }
+
+        .filter-panel {
+            padding: 14px;
+        }
+
+        .report-actions {
+            width: 100%;
+        }
+
+        .report-actions .btn {
+            flex: 1;
+        }
+    }
+
+    @media print {
+
+        .sidebar,
+        .filter-panel,
+        .report-actions,
+        .no-print {
+            display: none !important;
+        }
+
+        .report-card,
+        .report-hero {
+            break-inside: avoid;
+            box-shadow: none;
+        }
+    }
+</style>
+
+<div class="report-page">
+
+    <!-- HEADER -->
+
+    <div class="d-flex flex-wrap justify-content-between
+                align-items-start gap-3 mb-4">
+
+        <div>
+            <span class="badge text-bg-success mb-2">
+                REPORTING CENTRE
+            </span>
+
+            <h3 class="report-heading mb-1">
+                Fleet Reports & Analytics
+            </h3>
+
+            <p class="report-subtitle mb-0">
+                Management reporting, fleet composition and
+                operational data quality.
+            </p>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 report-actions no-print">
+
+            <a href="{% url 'export_excel' %}?{{ request.GET.urlencode }}" class="btn btn-success btn-sm">
+
+                <i class="bi bi-file-earmark-excel me-1"></i>
+                Excel
+            </a>
+
+            <a href="{% url 'export_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-outline-danger btn-sm">
+
+                <i class="bi bi-file-earmark-pdf me-1"></i>
+                PDF
+            </a>
+
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+
+                <i class="bi bi-printer me-1"></i>
+                Print
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- HERO -->
+
+    <div class="report-hero mb-4">
+
+        <div class="row align-items-center g-3">
+
+            <div class="col-md-7">
+
+                <div class="small text-uppercase opacity-75 mb-2">
+                    Fleet operational overview
+                </div>
+
+                <div class="display-4 fw-bold">
+                    {{ total_trucks }}
+                </div>
+
+                <div class="small opacity-75">
+                    Trucks matching the selected filters
+                </div>
+
+            </div>
+
+            <div class="col-md-5">
+
+                <div class="row g-3">
+
+                    <div class="col-6">
+                        <div class="small opacity-75">Drivers</div>
+                        <div class="fs-3 fw-bold">
+                            {{ total_drivers }}
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="small opacity-75">Assignments</div>
+                        <div class="fs-3 fw-bold">
+                            {{ total_assignments }}
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="small opacity-75">Active RFID</div>
+                        <div class="fs-4 fw-bold">
+                            {{ active_cards }}
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="small opacity-75">Expired RFID</div>
+                        <div class="fs-4 fw-bold">
+                            {{ expired_cards }}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- KPI CARDS -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-6 col-xl-3">
+            <div class="report-card">
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="report-icon">
+                        <i class="bi bi-building"></i>
+                    </span>
+                </div>
+
+                <div class="report-number">
+                    {{ company_stats|length }}
+                </div>
+
+                <div class="report-label">
+                    Companies in selection
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="report-card">
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="report-icon">
+                        <i class="bi bi-truck"></i>
+                    </span>
+                </div>
+
+                <div class="report-number">
+                    {{ total_trucks }}
+                </div>
+
+                <div class="report-label">
+                    Registered trucks
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="report-card">
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="report-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </span>
+                </div>
+
+                <div class="report-number">
+                    {{ total_drivers }}
+                </div>
+
+                <div class="report-label">
+                    Registered drivers
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="report-card">
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="report-icon">
+                        <i class="bi bi-calendar-event"></i>
+                    </span>
+                </div>
+
+                <div class="report-number">
+                    {{ upcoming_cards }}
+                </div>
+
+                <div class="report-label">
+                    RFID expiring within 30 days
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- REPORT FILTERS -->
+
+    <div class="filter-panel mb-4 no-print">
+
+        <div class="d-flex flex-wrap justify-content-between
+                    align-items-center gap-2 mb-3">
+
+            <div>
+                <h5 class="report-section-title mb-1">
+                    <i class="bi bi-sliders me-2 text-success"></i>
+                    Build your report
+                </h5>
+
+                <div class="report-subtitle">
+                    Select the records you want to analyse or export.
+                </div>
+            </div>
+
+            <span class="badge text-bg-light border">
+                Filters apply to dashboard and exports
+            </span>
+
+        </div>
+
+        <form method="get" action="{% url 'reports_dashboard' %}">
+
+            <div class="row g-3">
+
+                <div class="col-12 col-sm-6 col-lg-4">
+
+                    <label>Report type</label>
+
+                    <select name="report_type" class="form-select">
+
+                        {% for value,label in report_types %}
+
+                        <option value="{{ value }}" {% if report_type == value %}selected{% endif %}>
+
+                            {{ label }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-lg-4">
+
+                    <label>Company</label>
+
+                    <select name="company" class="form-select">
+
+                        <option value="">All companies</option>
+
+                        {% for company in companies %}
+
+                        <option value="{{ company.id }}" {% if filters.company == company.id|stringformat:"s" %} selected
+                            {% endif %}>
+
+                            {{ company.name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-lg-4">
+
+                    <label>Truck make</label>
+
+                    <select name="make" class="form-select">
+
+                        <option value="">All makes</option>
+
+                        {% for value in truck_makes %}
+
+                        <option value="{{ value }}" {% if filters.make == value %}selected{% endif %}>
+
+                            {{ value }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-lg-4">
+
+                    <label>Truck model</label>
+
+                    <select name="model" class="form-select">
+
+                        <option value="">All models</option>
+
+                        {% for value in truck_models %}
+
+                        <option value="{{ value }}" {% if filters.model == value %}selected{% endif %}>
+
+                            {{ value }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-lg-4">
+
+                    <label>RFID access status</label>
+
+                    <select name="rfid_status" class="form-select">
+
+                        <option value="">All statuses</option>
+
+                        <option value="active" {% if filters.rfid_status == "active" %}selected{% endif %}>
+                            Active
+                        </option>
+
+                        <option value="expired" {% if filters.rfid_status == "expired" %}selected{% endif %}>
+                            Expired
+                        </option>
+
+                        <option value="upcoming" {% if filters.rfid_status == "upcoming" %}selected{% endif %}>
+                            Not yet active
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-12 col-sm-6 col-lg-4">
+
+                    <label>Assignment status</label>
+
+                    <select name="assignment_status" class="form-select">
+
+                        <option value="">All assignments</option>
+
+                        <option value="active" {% if filters.assignment_status == "active" %}selected{% endif %}>
+                            Active
+                        </option>
+
+                        <option value="completed" {% if filters.assignment_status == "completed" %}selected{% endif %}>
+                            Completed
+                        </option>
+
+                        <option value="future" {% if filters.assignment_status == "future" %}selected{% endif %}>
+                            Future
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-12 d-flex flex-wrap gap-2 mt-3">
+
+                    <button type="submit" class="btn btn-success px-4">
+
+                        <i class="bi bi-bar-chart-line me-1"></i>
+                        Generate report
+
+                    </button>
+
+                    <a href="{% url 'reports_dashboard' %}" class="btn btn-outline-secondary">
+
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Clear filters
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- REPORT PREVIEW -->
+
+    <div class="report-card mb-4">
+
+        <div class="d-flex flex-wrap justify-content-between
+                    align-items-center gap-2 mb-3">
+
+            <div>
+
+                <h5 class="report-heading mb-1">
+                    {{ report_title }}
+                </h5>
+
+                <div class="report-subtitle">
+                    Report preview based on the selected filters.
+                </div>
+
+            </div>
+
+            <span class="badge text-bg-success">
+                {{ preview|length }} preview records
+            </span>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table table-hover report-table">
+
+                {% if report_type == "truck_register" %}
+
+                <thead>
+                    <tr>
+                        <th>Registration</th>
+                        <th>Company</th>
+                        <th>Make</th>
+                        <th>Model</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in preview %}
+
+                    <tr>
+                        <td class="fw-bold">
+                            {{ item.registration_number }}
+                        </td>
+                        <td>{{ item.company.name }}</td>
+                        <td>{{ item.make }}</td>
+                        <td>{{ item.model }}</td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="4" class="text-center text-muted p-4">
+                            No truck records found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+
+                {% elif report_type == "driver_register" %}
+
+                <thead>
+                    <tr>
+                        <th>Driver</th>
+                        <th>Mobile</th>
+                        <th>Organization</th>
+                        <th>Occupation</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in preview %}
+
+                    <tr>
+                        <td class="fw-semibold">{{ item.name }}</td>
+                        <td>{{ item.mobile_number|default:"—" }}</td>
+                        <td>{{ item.organization.name }}</td>
+                        <td>{{ item.occupation }}</td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="4" class="text-center p-4">
+                            No driver records found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+
+                {% elif report_type == "rfid_register" %}
+
+                <thead>
+                    <tr>
+                        <th>Driver</th>
+                        <th>Organization</th>
+                        <th>RFID</th>
+                        <th>Valid from</th>
+                        <th>Expiry</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in preview %}
+
+                    <tr>
+                        <td>{{ item.driver.name }}</td>
+                        <td>{{ item.driver.organization.name }}</td>
+                        <td class="fw-semibold">{{ item.identifier }}</td>
+                        <td>{{ item.date_from }}</td>
+                        <td>{{ item.date_until }}</td>
+                        <td>
+
+                            {% if item.access_status == "Active" %}
+                            <span class="status-badge status-active">
+                                Active
+                            </span>
+
+                            {% elif item.access_status == "Expired" %}
+                            <span class="status-badge status-expired">
+                                Expired
+                            </span>
+
+                            {% else %}
+                            <span class="status-badge status-upcoming">
+                                Not yet active
+                            </span>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="6" class="text-center p-4">
+                            No RFID records found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+
+                {% elif report_type == "assignments" %}
+
+                <thead>
+                    <tr>
+                        <th>Driver</th>
+                        <th>Organization</th>
+                        <th>Truck</th>
+                        <th>Start date</th>
+                        <th>End date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in preview %}
+
+                    <tr>
+                        <td>{{ item.driver.name }}</td>
+                        <td>{{ item.driver.organization.name }}</td>
+                        <td>{{ item.truck.registration_number }}</td>
+                        <td>{{ item.date_from }}</td>
+                        <td>{{ item.date_until|default:"Ongoing" }}</td>
+                        <td>
+                            {% if item.date_from > today %}
+                            <span class="status-badge status-upcoming">Future</span>
+                            {% elif item.date_until and item.date_until < today %} <span
+                                class="status-badge status-expired">Completed</span>
+                                {% else %}
+                                <span class="status-badge status-active">Active</span>
+                                {% endif %}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="6" class="text-center p-4">
+                            No assignment records found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+
+                {% elif report_type == "company_summary" %}
+
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Number of trucks</th>
+                        <th>Number of drivers</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in preview %}
+
+                    <tr>
+                        <td class="fw-semibold">{{ item.name }}</td>
+                        <td>{{ item.truck_total }}</td>
+                        <td>{{ item.driver_total }}</td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="3" class="text-center p-4">
+                            No company records found.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+
+                {% else %}
+
+                <thead>
+                    <tr>
+                        <th>Data quality check</th>
+                        <th>Missing records</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td>Trucks missing make</td>
+                        <td>{{ quality.truck_missing_make }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Trucks missing model</td>
+                        <td>{{ quality.truck_missing_model }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>Drivers missing mobile</td>
+                        <td>{{ quality.driver_missing_mobile }}</td>
+                    </tr>
+
+                    <tr>
+                        <td>RFID records missing dates</td>
+                        <td>{{ quality.card_missing_dates }}</td>
+                    </tr>
+
+                </tbody>
+
+                {% endif %}
+
+            </table>
+
+        </div>
+
+
+        <div class="d-flex flex-wrap justify-content-between
+                    align-items-center gap-2 mt-3 no-print">
+
+            <small class="text-muted">
+                The preview displays up to 15 records.
+                Exports contain the complete filtered report.
+            </small>
+
+            <div class="d-flex gap-2 report-actions">
+
+                <a href="{% url 'export_excel' %}?{{ request.GET.urlencode }}" class="btn btn-success btn-sm">
+
+                    <i class="bi bi-file-earmark-excel me-1"></i>
+                    Export Excel
+
+                </a>
+
+                <a href="{% url 'export_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-outline-danger btn-sm">
+
+                    <i class="bi bi-file-earmark-pdf me-1"></i>
+                    Export PDF
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RFID MONITORING -->
+
+    <h5 class="report-heading mb-3">
+        RFID access monitoring
+    </h5>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-sm-4">
+
+            <div class="report-card">
+
+                <div class="report-icon mb-3">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+
+                <div class="report-number text-success">
+                    {{ active_cards }}
+                </div>
+
+                <div class="report-label">
+                    Active RFID cards
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-sm-4">
+
+            <div class="report-card">
+
+                <div class="report-icon mb-3">
+                    <i class="bi bi-x-circle"></i>
+                </div>
+
+                <div class="report-number text-danger">
+                    {{ expired_cards }}
+                </div>
+
+                <div class="report-label">
+                    Expired RFID cards
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-12 col-sm-4">
+
+            <div class="report-card">
+
+                <div class="report-icon mb-3">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+
+                <div class="report-number text-warning">
+                    {{ upcoming_cards }}
+                </div>
+
+                <div class="report-label">
+                    Expiring within 30 days
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DATA QUALITY -->
+
+    <div class="report-card mb-4">
+
+        <h5 class="report-heading mb-1">
+            <i class="bi bi-shield-check text-success me-2"></i>
+            Data quality assessment
+        </h5>
+
+        <p class="report-subtitle mb-4">
+            Identify incomplete information in the selected records.
+        </p>
+
+        {% for label,value in quality.items %}
+
+        <div class="mb-3">
+
+            <div class="d-flex justify-content-between gap-2">
+
+                <span class="small fw-semibold">
+                    {{ label|cut:"_"|title }}
+                </span>
+
+                <span class="small fw-bold">
+                    {{ value }} missing
+                </span>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+
+    <!-- COMPANY OVERVIEW -->
+
+    <div class="report-card mb-4">
+
+        <h5 class="report-heading mb-1">
+            Company overview
+        </h5>
+
+        <p class="report-subtitle">
+            Distribution of trucks and drivers by company.
+        </p>
+
+        <div class="table-responsive">
+
+            <table class="table table-hover report-table">
+
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Trucks</th>
+                        <th>Drivers</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in company_stats %}
+
+                    <tr>
+                        <td class="fw-semibold">{{ item.name }}</td>
+                        <td>{{ item.truck_total }}</td>
+                        <td>{{ item.driver_total }}</td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="3" class="text-center p-4">
+                            No companies registered.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="d-flex flex-wrap justify-content-between
+                gap-2 text-secondary small pb-3">
+
+        <span>
+            Fleet Insights · Management Reporting
+        </span>
+
+        <span>
+            Generated {{ generated_at|date:"d M Y, H:i" }}
+        </span>
+
+    </div>
+
+</div>
+
+{% endblock %}

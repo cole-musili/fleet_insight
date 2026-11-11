@@ -1,0 +1,93 @@
+<!-- File: templates/imports/_upload_scripts.html -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const datasetSelect = document.getElementById("dataset");
+        const datasetDescription = document.getElementById("datasetDescription");
+        const fileInput = document.getElementById("importFile");
+        const selectedFile = document.getElementById("selectedFile");
+
+        // These fields match DATASETS in apps/imports/views.py.
+        const datasetFields = {
+            trucks: ["Company", "Registration Number", "Make", "Model"],
+            people: ["Driver Name", "Mobile Number", "Organization", "Occupation",
+                "RFID Identifier", "Date From", "Date Until"]
+        };
+
+        function renderDatasetFields() {
+            if (!datasetSelect || !datasetDescription) return;
+
+            datasetDescription.replaceChildren();
+            const fields = datasetFields[datasetSelect.value];
+
+            if (!fields) {
+                const message = document.createElement("span");
+                message.textContent = "Select a dataset to view its expected fields.";
+                datasetDescription.appendChild(message);
+                return;
+            }
+
+            fields.forEach(function (field) {
+                const tag = document.createElement("span");
+                tag.textContent = field;
+                datasetDescription.appendChild(tag);
+            });
+        }
+
+        if (datasetSelect) {
+            datasetSelect.addEventListener("change", renderDatasetFields);
+            renderDatasetFields();
+        }
+
+        if (fileInput && selectedFile) {
+            fileInput.addEventListener("change", function () {
+                selectedFile.textContent = "";
+                if (!this.files || !this.files.length) return;
+
+                const file = this.files[0];
+                const size = (file.size / (1024 * 1024)).toFixed(2);
+                selectedFile.textContent = file.name + " · " + size + " MB";
+            });
+        }
+
+        const filterButtons = document.querySelectorAll(".import-filter");
+        const rows = document.querySelectorAll("#previewTableBody tr[data-status]");
+
+        filterButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                filterButtons.forEach(function (item) {
+                    item.classList.remove("active");
+                });
+                button.classList.add("active");
+
+                const filter = button.dataset.filter;
+
+                rows.forEach(function (row) {
+                    let show = true;
+
+                    if (filter === "valid") show = row.dataset.status === "valid";
+                    if (filter === "missing") show = row.dataset.missing === "yes";
+                    if (filter === "invalid") show = row.dataset.invalid === "yes";
+                    if (filter === "duplicate") show = row.dataset.duplicate === "yes";
+
+                    row.hidden = !show;
+                });
+            });
+        });
+
+        const previewForm = document.getElementById("previewForm");
+        const saveButton = document.getElementById("saveCorrectionsBtn");
+
+        if (previewForm && saveButton) {
+            previewForm.addEventListener("submit", function () {
+                saveButton.disabled = true;
+                saveButton.textContent = "Saving corrections...";
+            });
+        }
+    });
+
+    function confirmImport() {
+        return window.confirm(
+            "Import all valid records now? Records with validation issues or duplicate identifiers will be skipped."
+        );
+    }
+</script>

@@ -1,0 +1,235 @@
+<!-- File: templates/deletion_center/deletion_history.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .history-page {
+        max-width: 1400px;
+        margin: auto;
+        padding: 24px;
+    }
+
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 24px;
+    }
+
+    .history-header h2 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .history-header p {
+        color: #64748b;
+        margin: 6px 0 0;
+    }
+
+    .history-panel {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .history-toolbar {
+        padding: 18px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .history-search {
+        width: 100%;
+        max-width: 350px;
+        padding: 10px 13px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+    }
+
+    .history-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .history-table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: collapse;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 14px;
+        border-bottom: 1px solid #e2e8f0;
+        text-align: left;
+        font-size: 13px;
+    }
+
+    .history-table th {
+        background: #f8fafc;
+        color: #475569;
+    }
+
+    .history-action {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .history-back {
+        text-decoration: none;
+        color: #0f766e;
+        font-weight: 600;
+    }
+
+    .history-empty {
+        padding: 50px 20px;
+        text-align: center;
+        color: #64748b;
+    }
+
+    @media (max-width: 768px) {
+        .history-page {
+            padding: 15px;
+        }
+
+        .history-search {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<div class="history-page">
+
+    <div class="history-header">
+        <div>
+            <h2>Deletion History</h2>
+            <p>
+                Review deletion, restoration and permanent deletion activity.
+            </p>
+        </div>
+
+        <a href="{% url 'deletion_center:dashboard' %}" class="history-back">
+            Back to Deletion Centre
+        </a>
+    </div>
+
+    <div class="history-panel">
+
+        <div class="history-toolbar">
+            <strong>Audit Records</strong>
+
+            <input type="search" id="historySearch" class="history-search" placeholder="Search audit history...">
+        </div>
+
+        <div class="history-table-wrapper">
+
+            {% if records %}
+
+            <table class="history-table" id="historyTable">
+
+                <thead>
+                    <tr>
+                        <th>Record</th>
+                        <th>Action</th>
+                        <th>Reason</th>
+                        <th>Performed By</th>
+                        <th>Operation</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for record in records %}
+                    <tr>
+                        <td>
+                            <strong>{{ record.object_label }}</strong>
+                            <br>
+                            <small>
+                                {{ record.content_type }}
+                                #{{ record.object_id }}
+                            </small>
+                        </td>
+
+                        <td>
+                            <span class="history-action">
+                                {{ record.get_action_display }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ record.reason|default:"No reason provided" }}
+                        </td>
+
+                        <td>
+                            {% if record.performed_by %}
+                            {{ record.performed_by.get_username }}
+                            {% else %}
+                            System / Unknown
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if record.operation %}
+                            {{ record.operation.target_label }}
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ record.created_at|date:"d M Y, H:i" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+            {% else %}
+
+            <div class="history-empty">
+                <h3>No Audit Records</h3>
+                <p>Deletion and restoration activities will appear here.</p>
+            </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("historySearch");
+        const table = document.getElementById("historyTable");
+
+        if (!searchInput || !table) return;
+
+        searchInput.addEventListener("input", function () {
+            const query = this.value.toLowerCase();
+
+            table.querySelectorAll("tbody tr").forEach(function (row) {
+                row.style.display = row.textContent
+                    .toLowerCase()
+                    .includes(query) ? "" : "none";
+            });
+        });
+    });
+</script>
+
+{% endblock %}

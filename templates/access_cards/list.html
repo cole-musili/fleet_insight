@@ -1,0 +1,848 @@
+<!-- File: templates/access_cards/list.html -->
+
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .rfid-page {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    .rfid-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+
+    .rfid-header h2 {
+        font-size: 25px;
+        font-weight: 750;
+        color: var(--text-main);
+        margin-bottom: 5px;
+    }
+
+    .rfid-header p {
+        color: var(--text-muted);
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .rfid-add-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: var(--primary);
+        color: white;
+        border: 1px solid var(--primary);
+        border-radius: 9px;
+        padding: 11px 18px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .rfid-add-btn:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .rfid-stat {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        box-shadow: var(--shadow);
+        padding: 18px;
+        height: 100%;
+    }
+
+    .rfid-stat-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 13px;
+    }
+
+    .rfid-stat-label {
+        font-size: 12px;
+        font-weight: 650;
+        color: var(--text-muted);
+    }
+
+    .rfid-stat-icon {
+        width: 39px;
+        height: 39px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-size: 18px;
+    }
+
+    .rfid-stat-icon.active {
+        background: #e8f7ee;
+        color: #198754;
+    }
+
+    .rfid-stat-icon.expired {
+        background: #fff0ee;
+        color: #c0392b;
+    }
+
+    .rfid-stat-icon.upcoming {
+        background: #fff7e6;
+        color: #b7791f;
+    }
+
+    .rfid-stat-value {
+        font-size: 27px;
+        font-weight: 800;
+        line-height: 1.2;
+        color: var(--text-main);
+    }
+
+    .rfid-stat-description {
+        margin-top: 5px;
+        color: var(--text-muted);
+        font-size: 11px;
+    }
+
+    .rfid-panel {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .rfid-panel-header {
+        padding: 19px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .rfid-panel-title {
+        color: var(--text-main);
+        font-size: 16px;
+        font-weight: 750;
+        margin: 0;
+    }
+
+    .rfid-panel-subtitle {
+        color: var(--text-muted);
+        font-size: 12px;
+        margin: 4px 0 0;
+    }
+
+    .rfid-filter-form {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 9px;
+        width: 100%;
+        max-width: 620px;
+    }
+
+    .rfid-search-wrap {
+        flex: 1;
+        min-width: 190px;
+        position: relative;
+    }
+
+    .rfid-search-wrap i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #91a097;
+    }
+
+    .rfid-search,
+    .rfid-status-select {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: white;
+        padding: 10px 12px;
+        font-size: 12px;
+        outline: none;
+    }
+
+    .rfid-search {
+        width: 100%;
+        padding-left: 36px;
+    }
+
+    .rfid-status-select {
+        min-width: 145px;
+    }
+
+    .rfid-search:focus,
+    .rfid-status-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(23, 107, 82, .09);
+    }
+
+    .rfid-filter-btn {
+        background: var(--primary);
+        color: white;
+        border: 1px solid var(--primary);
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .rfid-filter-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .rfid-clear {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .rfid-clear:hover {
+        color: var(--primary);
+    }
+
+    .rfid-table {
+        min-width: 950px;
+        margin: 0;
+    }
+
+    .rfid-table thead th {
+        background: #f8faf9;
+        color: #718078;
+        font-size: 10px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        padding: 15px 16px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .rfid-table tbody td {
+        padding: 15px 16px;
+        vertical-align: middle;
+        border-bottom: 1px solid #eef2ef;
+        color: var(--text-main);
+        font-size: 12px;
+    }
+
+    .rfid-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .rfid-table tbody tr:hover {
+        background: #fbfdfc;
+    }
+
+    .rfid-sort {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .rfid-sort:hover {
+        color: var(--primary);
+    }
+
+    .rfid-driver {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .rfid-driver-avatar {
+        width: 37px;
+        height: 37px;
+        border-radius: 10px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-weight: 800;
+        font-size: 13px;
+    }
+
+    .rfid-driver-name {
+        font-weight: 750;
+        color: var(--text-main);
+    }
+
+    .rfid-driver-id {
+        color: var(--text-muted);
+        font-size: 10px;
+        margin-top: 3px;
+    }
+
+    .rfid-organization {
+        font-weight: 650;
+    }
+
+    .rfid-mobile {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        color: #59695f;
+    }
+
+    .rfid-mobile i {
+        color: var(--primary);
+    }
+
+    .rfid-identifier {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 9px;
+        background: #f3f6f4;
+        border: 1px solid #e9efeb;
+        border-radius: 7px;
+        color: #34473c;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: .4px;
+        white-space: nowrap;
+    }
+
+    .rfid-identifier i {
+        color: var(--primary);
+    }
+
+    .rfid-date {
+        color: #52635a;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .rfid-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .rfid-status::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .rfid-status.active {
+        color: #198754;
+        background: #e8f7ee;
+    }
+
+    .rfid-status.expired {
+        color: #c0392b;
+        background: #fff0ee;
+    }
+
+    .rfid-status.upcoming {
+        color: #a66b12;
+        background: #fff7e6;
+    }
+
+    .rfid-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .rfid-action {
+        width: 33px;
+        height: 33px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: white;
+        color: #65746b;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .rfid-action:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+        border-color: var(--primary-light);
+    }
+
+    .rfid-action.delete:hover {
+        background: #fff1f0;
+        color: #c0392b;
+        border-color: #f5d1cd;
+    }
+
+    .rfid-empty {
+        text-align: center;
+        padding: 55px 20px !important;
+    }
+
+    .rfid-empty i {
+        display: block;
+        font-size: 40px;
+        color: #aab8b0;
+        margin-bottom: 12px;
+    }
+
+    .rfid-empty h6 {
+        font-weight: 750;
+        margin-bottom: 6px;
+    }
+
+    .rfid-empty p {
+        color: var(--text-muted);
+        font-size: 12px;
+        margin-bottom: 16px;
+    }
+
+    .rfid-pagination {
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .rfid-pagination-info {
+        color: var(--text-muted);
+        font-size: 12px;
+    }
+
+    .rfid-pagination .page-link {
+        color: var(--primary);
+        border-color: var(--border);
+        font-size: 12px;
+    }
+
+    .rfid-pagination .page-item.active .page-link {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .rfid-header {
+            align-items: flex-start;
+        }
+
+        .rfid-header h2 {
+            font-size: 21px;
+        }
+
+        .rfid-add-btn {
+            width: 100%;
+        }
+
+        .rfid-filter-form {
+            max-width: none;
+        }
+
+        .rfid-search-wrap {
+            flex-basis: 100%;
+        }
+
+        .rfid-status-select {
+            flex: 1;
+        }
+
+        .rfid-stat {
+            padding: 15px;
+        }
+
+        .rfid-stat-value {
+            font-size: 24px;
+        }
+
+        .rfid-pagination {
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="rfid-page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="rfid-header">
+        <div>
+            <h2>RFID Access Register</h2>
+            <p>Monitor access cards, assigned drivers and card validity periods.</p>
+        </div>
+
+        <a href="{% url 'access_cards_add' %}" class="rfid-add-btn">
+            <i class="bi bi-plus-lg"></i>
+            Register Access Card
+        </a>
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-6 col-xl-3">
+            <div class="rfid-stat">
+                <div class="rfid-stat-top">
+                    <span class="rfid-stat-label">Total Cards</span>
+                    <span class="rfid-stat-icon">
+                        <i class="bi bi-credit-card-2-front"></i>
+                    </span>
+                </div>
+
+                <div class="rfid-stat-value">{{ total_cards }}</div>
+                <div class="rfid-stat-description">Cards in the active register</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="rfid-stat">
+                <div class="rfid-stat-top">
+                    <span class="rfid-stat-label">Active Cards</span>
+                    <span class="rfid-stat-icon active">
+                        <i class="bi bi-check-circle"></i>
+                    </span>
+                </div>
+
+                <div class="rfid-stat-value">{{ active_cards }}</div>
+                <div class="rfid-stat-description">Currently within validity period</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="rfid-stat">
+                <div class="rfid-stat-top">
+                    <span class="rfid-stat-label">Expired Cards</span>
+                    <span class="rfid-stat-icon expired">
+                        <i class="bi bi-x-circle"></i>
+                    </span>
+                </div>
+
+                <div class="rfid-stat-value">{{ expired_cards }}</div>
+                <div class="rfid-stat-description">Validity period has ended</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <div class="rfid-stat">
+                <div class="rfid-stat-top">
+                    <span class="rfid-stat-label">Upcoming Cards</span>
+                    <span class="rfid-stat-icon upcoming">
+                        <i class="bi bi-clock-history"></i>
+                    </span>
+                </div>
+
+                <div class="rfid-stat-value">{{ upcoming_cards }}</div>
+                <div class="rfid-stat-description">Not yet within validity period</div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ACCESS CARD REGISTER -->
+
+    <div class="rfid-panel">
+
+        <div class="rfid-panel-header">
+
+            <div>
+                <h5 class="rfid-panel-title">Access Card Records</h5>
+                <p class="rfid-panel-subtitle">
+                    Search, filter and manage RFID card assignments.
+                </p>
+            </div>
+
+            <form method="GET" class="rfid-filter-form">
+
+                <div class="rfid-search-wrap">
+                    <i class="bi bi-search"></i>
+
+                    <input type="text" name="q" class="rfid-search" value="{{ q }}"
+                        placeholder="Search RFID, driver, mobile or organization..." aria-label="Search access cards">
+                </div>
+
+                <select name="status" class="rfid-status-select" aria-label="Filter by card status">
+
+                    <option value="">All statuses</option>
+
+                    <option value="active" {% if status_filter == "active" %}selected{% endif %}>
+                        Active
+                    </option>
+
+                    <option value="expired" {% if status_filter == "expired" %}selected{% endif %}>
+                        Expired
+                    </option>
+
+                    <option value="upcoming" {% if status_filter == "upcoming" %}selected{% endif %}>
+                        Upcoming
+                    </option>
+
+                </select>
+
+                <input type="hidden" name="sort" value="{{ sort }}">
+
+                <button type="submit" class="rfid-filter-btn">
+                    <i class="bi bi-funnel me-1"></i>
+                    Apply
+                </button>
+
+                {% if q or status_filter %}
+                <a href="{% url 'access_cards_list' %}" class="rfid-clear">
+                    Clear
+                </a>
+                {% endif %}
+
+            </form>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table rfid-table">
+
+                <thead>
+                    <tr>
+                        <th>Assigned Driver</th>
+                        <th>Organization</th>
+                        <th>Mobile</th>
+                        <th>RFID Identifier</th>
+
+                        <th>
+                            <a class="rfid-sort"
+                                href="?q={{ q|urlencode }}&status={{ status_filter|urlencode }}&sort={% if sort == 'date_from' %}-date_from{% else %}date_from{% endif %}">
+                                Valid From
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>
+                            <a class="rfid-sort"
+                                href="?q={{ q|urlencode }}&status={{ status_filter|urlencode }}&sort={% if sort == 'date_until' %}-date_until{% else %}date_until{% endif %}">
+                                Valid Until
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    {% for r in records %}
+
+                    <tr>
+
+                        <td>
+                            <div class="rfid-driver">
+
+                                <div class="rfid-driver-avatar">
+                                    {{ r.driver.name|first|upper }}
+                                </div>
+
+                                <div>
+                                    <div class="rfid-driver-name">
+                                        {{ r.driver.name }}
+                                    </div>
+
+                                    <div class="rfid-driver-id">
+                                        Driver ID: {{ r.driver_id }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="rfid-organization">
+                                {{ r.driver.organization.name }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="rfid-mobile">
+                                <i class="bi bi-telephone"></i>
+                                {{ r.driver.mobile_number|default:"—" }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="rfid-identifier">
+                                <i class="bi bi-broadcast"></i>
+                                {{ r.identifier }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="rfid-date">
+                                {{ r.date_from|date:"d M Y" }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="rfid-date">
+                                {{ r.date_until|date:"d M Y" }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if r.date_from > today %}
+                            <span class="rfid-status upcoming">Upcoming</span>
+                            {% elif r.date_until < today %} <span class="rfid-status expired">Expired</span>
+                                {% else %}
+                                <span class="rfid-status active">Active</span>
+                                {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="rfid-actions">
+
+                                <a href="{% url 'access_cards_edit' r.pk %}" class="rfid-action"
+                                    title="Edit access card" aria-label="Edit access card">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a href="{% url 'access_cards_delete' r.pk %}" class="rfid-action delete"
+                                    title="Remove access card" aria-label="Remove access card">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="8" class="rfid-empty">
+
+                            <i class="bi bi-credit-card-2-front"></i>
+
+                            {% if q or status_filter %}
+                            <h6>No matching access cards found</h6>
+                            <p>Try changing your search or status filter.</p>
+
+                            <a href="{% url 'access_cards_list' %}" class="btn btn-sm btn-outline-secondary">
+                                Clear filters
+                            </a>
+                            {% else %}
+                            <h6>No access cards registered yet</h6>
+                            <p>Register an RFID card and assign it to a driver.</p>
+
+                            <a href="{% url 'access_cards_add' %}" class="rfid-add-btn">
+                                <i class="bi bi-plus-lg"></i>
+                                Register Access Card
+                            </a>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- PAGINATION -->
+
+        {% if page_obj.paginator.num_pages > 1 %}
+
+        <div class="rfid-pagination">
+
+            <div class="rfid-pagination-info">
+                Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+                of {{ page_obj.paginator.count }} access cards
+            </div>
+
+            <nav aria-label="Access card pagination">
+                <ul class="pagination pagination-sm mb-0">
+
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?q={{ q|urlencode }}&status={{ status_filter|urlencode }}&sort={{ sort|urlencode }}&page={{ page_obj.previous_page_number }}">
+                            Previous
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+
+                    {% if num == page_obj.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+
+                    {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <li class="page-item">
+                        <a class="page-link"
+                            href="?q={{ q|urlencode }}&status={{ status_filter|urlencode }}&sort={{ sort|urlencode }}&page={{ num }}">
+                            {{ num }}
+                        </a>
+                        </li>
+                        {% endif %}
+
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?q={{ q|urlencode }}&status={{ status_filter|urlencode }}&sort={{ sort|urlencode }}&page={{ page_obj.next_page_number }}">
+                                Next
+                            </a>
+                        </li>
+                        {% endif %}
+
+                </ul>
+            </nav>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

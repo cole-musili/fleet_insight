@@ -1,0 +1,467 @@
+<!-- File: templates/deletion_center/manage_records.html -->
+
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .dm-page {
+        max-width: 1450px;
+        margin: 0 auto;
+    }
+
+    .dm-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 22px;
+    }
+
+    .dm-header h2 {
+        font-size: 24px;
+        font-weight: 750;
+        margin: 0 0 5px;
+    }
+
+    .dm-header p {
+        color: var(--text-muted);
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .dm-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .dm-panel {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .dm-toolbar {
+        padding: 17px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .dm-toolbar form {
+        display: flex;
+        flex: 1;
+        flex-wrap: wrap;
+        gap: 9px;
+    }
+
+    .dm-select,
+    .dm-search {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 12px;
+        background: white;
+    }
+
+    .dm-select {
+        min-width: 190px;
+    }
+
+    .dm-search {
+        flex: 1;
+        min-width: 190px;
+    }
+
+    .dm-filter-btn {
+        background: var(--primary);
+        border: 1px solid var(--primary);
+        color: white;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .dm-summary {
+        padding: 13px 20px;
+        background: #f8faf9;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .dm-table-wrap {
+        overflow-x: auto;
+    }
+
+    .dm-table {
+        width: 100%;
+        min-width: 750px;
+        border-collapse: collapse;
+    }
+
+    .dm-table th {
+        background: #fff;
+        color: var(--text-muted);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        padding: 14px;
+        text-align: left;
+    }
+
+    .dm-table td {
+        padding: 13px 14px;
+        border-top: 1px solid var(--border);
+        font-size: 12px;
+        vertical-align: middle;
+    }
+
+    .dm-name {
+        font-weight: 750;
+        color: var(--text-main);
+    }
+
+    .dm-muted {
+        color: var(--text-muted);
+        font-size: 11px;
+        margin-top: 3px;
+    }
+
+    .dm-selection {
+        padding: 17px 20px;
+        border-top: 1px solid var(--border);
+        background: #fbfcfb;
+    }
+
+    .dm-selection-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .dm-selection label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 6px;
+    }
+
+    .dm-selection input {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 12px;
+    }
+
+    .dm-submit {
+        margin-top: 13px;
+        border: 0;
+        background: #fff0ee;
+        color: #b42318;
+        border: 1px solid #f0ceca;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .dm-submit:hover {
+        background: #fee5e2;
+    }
+
+    .dm-empty {
+        padding: 45px 20px;
+        text-align: center;
+        color: var(--text-muted);
+    }
+
+    .dm-empty i {
+        font-size: 35px;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    .dm-pagination {
+        padding: 14px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .dm-pagination .page-link {
+        color: var(--primary);
+        font-size: 12px;
+    }
+
+    .dm-pagination .page-item.active .page-link {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    @media(max-width:768px) {
+        .dm-header h2 {
+            font-size: 21px;
+        }
+
+        .dm-toolbar form {
+            width: 100%;
+        }
+
+        .dm-select,
+        .dm-search {
+            width: 100%;
+        }
+
+        .dm-filter-btn {
+            width: 100%;
+        }
+
+        .dm-selection-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="dm-page">
+
+    <div class="dm-header">
+        <div>
+            <h2>Manage Records</h2>
+            <p>Select individual records or multiple records to move into the Recycle Bin.</p>
+        </div>
+
+        <a href="{% url 'deletion_center:dashboard' %}" class="dm-link">
+            <i class="bi bi-arrow-left me-1"></i> Back to Deletion Centre
+        </a>
+    </div>
+
+
+    <div class="dm-panel">
+
+        <div class="dm-toolbar">
+            <form method="GET">
+                <select name="category" class="dm-select" aria-label="Choose category">
+                    {% for category in categories %}
+                    <option value="{{ category.key }}" {% if selected_category == category.key %}selected{% endif %}>
+                        {{ category.label }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <input type="search" name="q" value="{{ search }}" class="dm-search"
+                    placeholder="Search {{ selected_label|lower }}...">
+
+                <button type="submit" class="dm-filter-btn">
+                    <i class="bi bi-search me-1"></i> Search
+                </button>
+            </form>
+        </div>
+
+
+        <div class="dm-summary">
+            <span><strong>{{ selected_label }}</strong></span>
+            <span>{{ total_records }} active record(s) found</span>
+        </div>
+
+
+        {% if records %}
+
+        <form method="POST" id="manageRecordsForm">
+            {% csrf_token %}
+            <input type="hidden" name="category" value="{{ selected_category }}">
+
+            <div class="dm-table-wrap">
+                <table class="dm-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" aria-label="Select all records">
+                            </th>
+                            <th>Record</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for record in records %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="selected_ids" value="{{ record.pk }}"
+                                    class="record-checkbox" aria-label="Select record {{ record.pk }}">
+                            </td>
+
+                            <td>
+                                <div class="dm-name">{{ record }}</div>
+                                <div class="dm-muted">Record ID: {{ record.pk }}</div>
+                            </td>
+
+                            <td>
+                                {% if selected_category == "companies" %}
+                                {{ record.vehicles.count }} truck(s),
+                                {{ record.drivers.count }} driver(s)
+
+                                {% elif selected_category == "trucks" %}
+                                {{ record.registration_number }}
+                                {% if record.company %} · {{ record.company.name }}{% endif %}
+
+                                {% elif selected_category == "drivers" %}
+                                {{ record.mobile_number|default:"No mobile number" }}
+                                · {{ record.organization.name }}
+
+                                {% elif selected_category == "access_cards" %}
+                                RFID: {{ record.identifier }}
+                                · {{ record.driver.name }}
+
+                                {% elif selected_category == "assignments" %}
+                                {{ record.driver.name }}
+                                · {{ record.truck.registration_number }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div class="dm-selection">
+
+                <div class="dm-selection-grid">
+                    <div>
+                        <label for="deletionReason">Reason for removal</label>
+                        <input type="text" name="reason" id="deletionReason" maxlength="500" required
+                            placeholder="Enter the reason for removing these records">
+                    </div>
+
+                    <div>
+                        <label for="deletionConfirmation">
+                            Type MOVE TO RECYCLE BIN to confirm
+                        </label>
+                        <input type="text" name="confirmation" id="deletionConfirmation" required
+                            placeholder="MOVE TO RECYCLE BIN">
+                    </div>
+                </div>
+
+                <button type="submit" class="dm-submit">
+                    <i class="bi bi-trash3 me-1"></i>
+                    Move Selected Records to Recycle Bin
+                </button>
+
+            </div>
+
+        </form>
+
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="dm-pagination">
+            <span class="dm-muted">
+                Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+                of {{ page_obj.paginator.count }} records
+            </span>
+
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?category={{ selected_category }}&q={{ search|urlencode }}&page={{ page_obj.previous_page_number }}">
+                            Previous
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_obj.number }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?category={{ selected_category }}&q={{ search|urlencode }}&page={{ page_obj.next_page_number }}">
+                            Next
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+
+        <div class="dm-empty">
+            <i class="bi bi-search"></i>
+            <strong>No active records found</strong>
+            <p>Try another category or search term.</p>
+        </div>
+
+        {% endif %}
+
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const selectAll = document.getElementById("selectAll");
+
+        if (selectAll) {
+            selectAll.addEventListener("change", function () {
+                document.querySelectorAll(".record-checkbox").forEach(function (checkbox) {
+                    checkbox.checked = selectAll.checked;
+                });
+            });
+        }
+
+        const form = document.getElementById("manageRecordsForm");
+
+        if (form) {
+            form.addEventListener("submit", function (event) {
+                const selected = document.querySelectorAll(
+                    ".record-checkbox:checked"
+                ).length;
+
+                const reason = document.getElementById("deletionReason").value.trim();
+                const confirmation = document.getElementById("deletionConfirmation").value.trim();
+
+                if (!selected) {
+                    event.preventDefault();
+                    alert("Select at least one record.");
+                    return;
+                }
+
+                if (!reason || confirmation !== "MOVE TO RECYCLE BIN") {
+                    event.preventDefault();
+                    alert("Enter a reason and the exact confirmation phrase.");
+                    return;
+                }
+
+                if (!confirm("Move " + selected + " selected record(s) to the Recycle Bin?")) {
+                    event.preventDefault();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

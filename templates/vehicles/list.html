@@ -1,0 +1,735 @@
+<!-- File: templates/vehicles/list.html -->
+
+{% extends "base.html" %}
+
+{% block extra_css %}
+
+<style>
+    .truck-page {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    .truck-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+
+    .truck-header h2 {
+        font-size: 25px;
+        font-weight: 750;
+        color: var(--text-main);
+        margin-bottom: 5px;
+    }
+
+    .truck-header p {
+        color: var(--text-muted);
+        margin: 0;
+        font-size: 13px;
+    }
+
+    .truck-add-btn {
+        background: var(--primary);
+        color: white;
+        border: 1px solid var(--primary);
+        border-radius: 9px;
+        padding: 11px 18px;
+        font-size: 13px;
+        font-weight: 650;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .truck-add-btn:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .truck-stat {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        padding: 19px;
+        height: 100%;
+        box-shadow: var(--shadow);
+    }
+
+    .truck-stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
+
+    .truck-stat-label {
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .truck-stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-size: 19px;
+    }
+
+    .truck-stat-value {
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1.2;
+        color: var(--text-main);
+    }
+
+    .truck-stat-description {
+        margin-top: 6px;
+        color: var(--text-muted);
+        font-size: 11px;
+    }
+
+    .truck-panel {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .truck-panel-header {
+        padding: 19px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .truck-panel-title {
+        font-size: 16px;
+        font-weight: 750;
+        color: var(--text-main);
+        margin: 0;
+    }
+
+    .truck-panel-subtitle {
+        color: var(--text-muted);
+        font-size: 12px;
+        margin: 4px 0 0;
+    }
+
+    .truck-filter-form {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 9px;
+        width: 100%;
+        max-width: 680px;
+    }
+
+    .truck-search-wrap {
+        flex: 1;
+        min-width: 190px;
+        position: relative;
+    }
+
+    .truck-search-wrap i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #91a097;
+    }
+
+    .truck-search {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px 10px 36px;
+        font-size: 12px;
+        outline: none;
+    }
+
+    .truck-search:focus,
+    .truck-company-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(23, 107, 82, .09);
+    }
+
+    .truck-company-select {
+        min-width: 155px;
+        max-width: 190px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 12px;
+        background: white;
+        outline: none;
+    }
+
+    .truck-filter-btn {
+        border: 1px solid var(--primary);
+        background: var(--primary);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .truck-filter-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .truck-clear-btn {
+        color: var(--text-muted);
+        font-size: 12px;
+        text-decoration: none;
+        padding: 8px;
+    }
+
+    .truck-clear-btn:hover {
+        color: var(--primary);
+    }
+
+    .truck-table {
+        min-width: 750px;
+        margin: 0;
+    }
+
+    .truck-table thead th {
+        background: #f8faf9;
+        color: #718078;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        font-weight: 750;
+        padding: 15px 18px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .truck-table tbody td {
+        padding: 15px 18px;
+        vertical-align: middle;
+        border-bottom: 1px solid #eef2ef;
+        color: var(--text-main);
+        font-size: 12px;
+    }
+
+    .truck-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .truck-table tbody tr:hover {
+        background: #fbfdfc;
+    }
+
+    .truck-sort-link {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .truck-sort-link:hover {
+        color: var(--primary);
+    }
+
+    .truck-registration {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .truck-icon-box {
+        width: 39px;
+        height: 39px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .truck-reg-number {
+        font-weight: 750;
+        color: var(--text-main);
+        letter-spacing: .2px;
+    }
+
+    .truck-small-text {
+        color: var(--text-muted);
+        font-size: 11px;
+        margin-top: 3px;
+    }
+
+    .truck-company-name {
+        font-weight: 650;
+        color: var(--text-main);
+    }
+
+    .truck-model {
+        color: var(--text-muted);
+    }
+
+    .truck-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .truck-action {
+        height: 33px;
+        width: 33px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: white;
+        color: #65746b;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .truck-action:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+        border-color: var(--primary-light);
+    }
+
+    .truck-action.delete:hover {
+        background: #fff1f0;
+        color: #c0392b;
+        border-color: #f5d1cd;
+    }
+
+    .truck-empty {
+        text-align: center;
+        padding: 55px 20px !important;
+    }
+
+    .truck-empty i {
+        display: block;
+        font-size: 40px;
+        color: #aab8b0;
+        margin-bottom: 12px;
+    }
+
+    .truck-empty h6 {
+        font-weight: 750;
+        margin-bottom: 6px;
+    }
+
+    .truck-empty p {
+        color: var(--text-muted);
+        font-size: 12px;
+        margin-bottom: 16px;
+    }
+
+    .truck-pagination {
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .truck-pagination-info {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .truck-pagination .page-link {
+        color: var(--primary);
+        border-color: var(--border);
+        font-size: 12px;
+    }
+
+    .truck-pagination .page-item.active .page-link {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .truck-header {
+            align-items: flex-start;
+        }
+
+        .truck-header h2 {
+            font-size: 21px;
+        }
+
+        .truck-add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .truck-filter-form {
+            max-width: none;
+        }
+
+        .truck-search-wrap {
+            flex-basis: 100%;
+        }
+
+        .truck-company-select {
+            flex: 1;
+            max-width: none;
+        }
+
+        .truck-stat {
+            padding: 15px;
+        }
+
+        .truck-stat-value {
+            font-size: 24px;
+        }
+
+        .truck-pagination {
+            align-items: flex-start;
+        }
+    }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="truck-page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="truck-header">
+        <div>
+            <h2>Truck Register</h2>
+            <p>Manage your registered fleet vehicles and company assignments.</p>
+        </div>
+
+        <a href="{% url 'vehicles_add' %}" class="truck-add-btn">
+            <i class="bi bi-plus-lg"></i>
+            Register Truck
+        </a>
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-md-4">
+            <div class="truck-stat">
+                <div class="truck-stat-top">
+                    <span class="truck-stat-label">Registered Trucks</span>
+                    <span class="truck-stat-icon">
+                        <i class="bi bi-truck"></i>
+                    </span>
+                </div>
+
+                <div class="truck-stat-value">{{ total_trucks }}</div>
+                <div class="truck-stat-description">Active vehicles in the register</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+            <div class="truck-stat">
+                <div class="truck-stat-top">
+                    <span class="truck-stat-label">Companies with Trucks</span>
+                    <span class="truck-stat-icon">
+                        <i class="bi bi-buildings"></i>
+                    </span>
+                </div>
+
+                <div class="truck-stat-value">{{ companies_with_trucks }}</div>
+                <div class="truck-stat-description">Companies represented in the fleet</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+            <div class="truck-stat">
+                <div class="truck-stat-top">
+                    <span class="truck-stat-label">Vehicle Makes</span>
+                    <span class="truck-stat-icon">
+                        <i class="bi bi-tags"></i>
+                    </span>
+                </div>
+
+                <div class="truck-stat-value">{{ total_makes }}</div>
+                <div class="truck-stat-description">Distinct vehicle makes registered</div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- TRUCK REGISTER TABLE -->
+
+    <div class="truck-panel">
+
+        <div class="truck-panel-header">
+
+            <div>
+                <h5 class="truck-panel-title">Fleet Vehicles</h5>
+                <p class="truck-panel-subtitle">
+                    Search, filter and manage registered trucks.
+                </p>
+            </div>
+
+            <form method="GET" class="truck-filter-form">
+
+                <div class="truck-search-wrap">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="truck-search" name="q" value="{{ q }}"
+                        placeholder="Search registration, company, make or model..." aria-label="Search trucks">
+                </div>
+
+                <select name="company" class="truck-company-select" aria-label="Filter by company">
+                    <option value="">All companies</option>
+
+                    {% for c in companies %}
+                    <option value="{{ c.id }}" {% if company_filter == c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <input type="hidden" name="sort" value="{{ sort }}">
+
+                <button type="submit" class="truck-filter-btn">
+                    <i class="bi bi-funnel me-1"></i>
+                    Apply
+                </button>
+
+                {% if q or company_filter %}
+                <a href="{% url 'vehicles_list' %}" class="truck-clear-btn">
+                    Clear
+                </a>
+                {% endif %}
+
+            </form>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table truck-table">
+
+                <thead>
+                    <tr>
+                        <th>
+                            <a class="truck-sort-link"
+                                href="?q={{ q|urlencode }}&company={{ company_filter|urlencode }}&sort={% if sort == 'registration_number' %}-registration_number{% else %}registration_number{% endif %}">
+                                Registration No.
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>
+                            <a class="truck-sort-link"
+                                href="?q={{ q|urlencode }}&company={{ company_filter|urlencode }}&sort={% if sort == 'company' %}-company{% else %}company{% endif %}">
+                                Company
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>
+                            <a class="truck-sort-link"
+                                href="?q={{ q|urlencode }}&company={{ company_filter|urlencode }}&sort={% if sort == 'make' %}-make{% else %}make{% endif %}">
+                                Make
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>
+                            <a class="truck-sort-link"
+                                href="?q={{ q|urlencode }}&company={{ company_filter|urlencode }}&sort={% if sort == 'model' %}-model{% else %}model{% endif %}">
+                                Model
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    {% for r in records %}
+
+                    <tr>
+
+                        <td>
+                            <div class="truck-registration">
+
+                                <div class="truck-icon-box">
+                                    <i class="bi bi-truck-front"></i>
+                                </div>
+
+                                <div>
+                                    <div class="truck-reg-number">
+                                        {{ r.registration_number }}
+                                    </div>
+
+                                    <div class="truck-small-text">
+                                        Vehicle ID: {{ r.pk }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <td>
+                            <div class="truck-company-name">
+                                {{ r.company.name }}
+                            </div>
+                        </td>
+
+                        <td>
+                            {{ r.make|default:"—" }}
+                        </td>
+
+                        <td>
+                            <span class="truck-model">
+                                {{ r.model|default:"—" }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="truck-actions">
+
+                                <a href="{% url 'vehicles_edit' r.pk %}" class="truck-action" title="Edit truck"
+                                    aria-label="Edit truck">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a href="{% url 'vehicles_delete' r.pk %}" class="truck-action delete"
+                                    title="Remove truck" aria-label="Remove truck">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="5" class="truck-empty">
+
+                            <i class="bi bi-truck"></i>
+
+                            {% if q or company_filter %}
+                            <h6>No matching trucks found</h6>
+                            <p>Try changing your search or company filter.</p>
+
+                            <a href="{% url 'vehicles_list' %}" class="btn btn-sm btn-outline-secondary">
+                                Clear filters
+                            </a>
+                            {% else %}
+                            <h6>No trucks registered yet</h6>
+                            <p>Register your first truck to start building your fleet.</p>
+
+                            <a href="{% url 'vehicles_add' %}" class="truck-add-btn">
+                                <i class="bi bi-plus-lg"></i>
+                                Register Truck
+                            </a>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- PAGINATION -->
+
+        {% if page_obj.paginator.num_pages > 1 %}
+
+        <div class="truck-pagination">
+
+            <div class="truck-pagination-info">
+                Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+                of {{ page_obj.paginator.count }} trucks
+            </div>
+
+            <nav aria-label="Truck pagination">
+
+                <ul class="pagination pagination-sm mb-0">
+
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?q={{ q|urlencode }}&company={{ company_filter|urlencode }}&sort={{ sort|urlencode }}&page={{ page_obj.previous_page_number }}">
+                            Previous
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+
+                    {% if num == page_obj.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+
+                    {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <li class="page-item">
+                        <a class="page-link"
+                            href="?q={{ q|urlencode }}&company={{ company_filter|urlencode }}&sort={{ sort|urlencode }}&page={{ num }}">
+                            {{ num }}
+                        </a>
+                        </li>
+                        {% endif %}
+
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?q={{ q|urlencode }}&company={{ company_filter|urlencode }}&sort={{ sort|urlencode }}&page={{ page_obj.next_page_number }}">
+                                Next
+                            </a>
+                        </li>
+                        {% endif %}
+
+                </ul>
+
+            </nav>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

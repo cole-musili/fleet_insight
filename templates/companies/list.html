@@ -1,0 +1,654 @@
+<!-- File: templates/companies/list.html -->
+
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .company-page {
+        max-width: 1500px;
+        margin: auto;
+    }
+
+    .company-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+
+    .company-header h2 {
+        font-size: 25px;
+        font-weight: 750;
+        color: var(--text-main);
+        margin-bottom: 5px;
+    }
+
+    .company-header p {
+        color: var(--text-muted);
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .company-add-btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 9px;
+        padding: 11px 18px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: .2s;
+    }
+
+    .company-add-btn:hover {
+        background: var(--primary-dark);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .company-stat {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        padding: 19px;
+        height: 100%;
+    }
+
+    .company-stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 13px;
+    }
+
+    .company-stat-label {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 600;
+    }
+
+    .company-stat-icon {
+        width: 39px;
+        height: 39px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 10px;
+        font-size: 18px;
+    }
+
+    .company-stat-value {
+        font-size: 27px;
+        font-weight: 750;
+        color: var(--text-main);
+        line-height: 1.2;
+    }
+
+    .company-stat-description {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 5px;
+    }
+
+    .company-panel {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        overflow: hidden;
+    }
+
+    .company-panel-header {
+        padding: 19px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .company-panel-header h5 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    .company-panel-header p {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .company-search {
+        display: flex;
+        gap: 8px;
+        max-width: 390px;
+        width: 100%;
+    }
+
+    .company-search input {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 9px 12px;
+        font-size: 13px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .company-search input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(23, 107, 82, .09);
+    }
+
+    .company-search button {
+        border: none;
+        border-radius: 8px;
+        background: var(--primary);
+        color: white;
+        padding: 9px 15px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .company-table {
+        margin: 0;
+        min-width: 650px;
+    }
+
+    .company-table thead th {
+        background: #f8faf9;
+        color: #718078;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        font-weight: 700;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .company-table tbody td {
+        padding: 16px 18px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f3f1;
+        font-size: 13px;
+        color: var(--text-main);
+    }
+
+    .company-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .company-table tbody tr:hover {
+        background: #fbfdfc;
+    }
+
+    .company-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .company-avatar {
+        width: 38px;
+        height: 38px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 10px;
+        font-weight: 750;
+        font-size: 14px;
+    }
+
+    .company-name {
+        font-weight: 650;
+        color: var(--text-main);
+    }
+
+    .company-subtitle {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 3px;
+    }
+
+    .company-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        padding: 5px 9px;
+        border-radius: 7px;
+        background: #f1f5f3;
+        font-weight: 650;
+        color: #46564e;
+    }
+
+    .company-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .company-action {
+        width: 33px;
+        height: 33px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        text-decoration: none;
+        border: 1px solid var(--border);
+        background: white;
+        color: #64736b;
+        transition: .2s;
+    }
+
+    .company-action:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+        border-color: var(--primary-light);
+    }
+
+    .company-action.delete:hover {
+        background: #fff1f0;
+        color: #c0392b;
+        border-color: #f5d1cd;
+    }
+
+    .company-sort {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .company-sort:hover {
+        color: var(--primary);
+    }
+
+    .company-empty {
+        padding: 55px 20px !important;
+        text-align: center;
+    }
+
+    .company-empty i {
+        font-size: 38px;
+        color: #aab8b0;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .company-empty h6 {
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .company-empty p {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+    }
+
+    .company-pagination {
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .company-pagination-info {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .company-pagination .page-link {
+        color: var(--primary);
+        border-color: var(--border);
+        font-size: 12px;
+    }
+
+    .company-pagination .page-item.active .page-link {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .company-header {
+            align-items: flex-start;
+        }
+
+        .company-header h2 {
+            font-size: 21px;
+        }
+
+        .company-add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .company-panel-header {
+            align-items: stretch;
+        }
+
+        .company-search {
+            max-width: none;
+        }
+
+        .company-stat {
+            padding: 15px;
+        }
+
+        .company-stat-value {
+            font-size: 23px;
+        }
+
+        .company-pagination {
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="company-page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="company-header">
+        <div>
+            <h2>Company Register</h2>
+            <p>Manage registered companies and their fleet relationships.</p>
+        </div>
+
+        <a href="{% url 'companies_add' %}" class="company-add-btn">
+            <i class="bi bi-plus-lg"></i>
+            Register Company
+        </a>
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-md-4">
+            <div class="company-stat">
+                <div class="company-stat-top">
+                    <span class="company-stat-label">Registered Companies</span>
+                    <span class="company-stat-icon">
+                        <i class="bi bi-buildings"></i>
+                    </span>
+                </div>
+
+                <div class="company-stat-value">
+                    {{ total_companies }}
+                </div>
+
+                <div class="company-stat-description">
+                    Active company records
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+            <div class="company-stat">
+                <div class="company-stat-top">
+                    <span class="company-stat-label">Registered Trucks</span>
+                    <span class="company-stat-icon">
+                        <i class="bi bi-truck"></i>
+                    </span>
+                </div>
+
+                <div class="company-stat-value">
+                    {{ total_trucks }}
+                </div>
+
+                <div class="company-stat-description">
+                    Active trucks across companies
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+            <div class="company-stat">
+                <div class="company-stat-top">
+                    <span class="company-stat-label">Registered Drivers</span>
+                    <span class="company-stat-icon">
+                        <i class="bi bi-people"></i>
+                    </span>
+                </div>
+
+                <div class="company-stat-value">
+                    {{ total_drivers }}
+                </div>
+
+                <div class="company-stat-description">
+                    Active drivers across companies
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- COMPANY TABLE -->
+
+    <div class="company-panel">
+
+        <div class="company-panel-header">
+            <div>
+                <h5>Companies</h5>
+                <p>View and manage your registered companies.</p>
+            </div>
+
+            <form method="GET" class="company-search">
+                <input type="text" name="q" value="{{ q }}" placeholder="Search company name..."
+                    aria-label="Search companies">
+
+                <input type="hidden" name="sort" value="{{ sort }}">
+
+                <button type="submit">
+                    <i class="bi bi-search"></i>
+                    Search
+                </button>
+            </form>
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table company-table">
+
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">
+                            <a class="company-sort"
+                                href="?q={{ q|urlencode }}&sort={% if sort == 'name' %}-name{% else %}name{% endif %}">
+                                Company
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>
+                            <a class="company-sort"
+                                href="?q={{ q|urlencode }}&sort={% if sort == 'trucks' %}-trucks{% else %}trucks{% endif %}">
+                                Trucks
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>
+                            <a class="company-sort"
+                                href="?q={{ q|urlencode }}&sort={% if sort == 'drivers' %}-drivers{% else %}drivers{% endif %}">
+                                Drivers
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    {% for r in records %}
+
+                    <tr>
+                        <td>
+                            <div class="company-name-cell">
+
+                                <div class="company-avatar">
+                                    {{ r.name|first|upper }}
+                                </div>
+
+                                <div>
+                                    <div class="company-name">
+                                        {{ r.name }}
+                                    </div>
+
+                                    <div class="company-subtitle">
+                                        Company ID: {{ r.pk }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="company-count">
+                                {{ r.truck_count }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="company-count">
+                                {{ r.driver_count }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="company-actions">
+
+                                <a href="{% url 'companies_edit' r.pk %}" class="company-action" title="Edit company">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a href="{% url 'companies_delete' r.pk %}" class="company-action delete"
+                                    title="Remove company">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="4" class="company-empty">
+                            <i class="bi bi-buildings"></i>
+
+                            {% if q %}
+                            <h6>No matching companies</h6>
+                            <p>Try another company name or clear your search.</p>
+
+                            <a href="{% url 'companies_list' %}" class="btn btn-sm btn-outline-secondary">
+                                Clear search
+                            </a>
+                            {% else %}
+                            <h6>No companies registered yet</h6>
+                            <p>Start by registering your first company.</p>
+
+                            <a href="{% url 'companies_add' %}" class="company-add-btn">
+                                <i class="bi bi-plus-lg"></i>
+                                Register Company
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- PAGINATION -->
+
+        {% if page_obj.paginator.num_pages > 1 %}
+
+        <div class="company-pagination">
+
+            <div class="company-pagination-info">
+                Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+                of {{ page_obj.paginator.count }} companies
+            </div>
+
+            <nav aria-label="Company pagination">
+                <ul class="pagination pagination-sm mb-0">
+
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?q={{ q|urlencode }}&sort={{ sort|urlencode }}&page={{ page_obj.previous_page_number }}">
+                            Previous
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+
+                    {% if num == page_obj.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <li class="page-item">
+                        <a class="page-link" href="?q={{ q|urlencode }}&sort={{ sort|urlencode }}&page={{ num }}">
+                            {{ num }}
+                        </a>
+                        </li>
+                        {% endif %}
+
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?q={{ q|urlencode }}&sort={{ sort|urlencode }}&page={{ page_obj.next_page_number }}">
+                                Next
+                            </a>
+                        </li>
+                        {% endif %}
+
+                </ul>
+            </nav>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

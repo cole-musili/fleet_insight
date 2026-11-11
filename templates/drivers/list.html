@@ -1,0 +1,757 @@
+<!-- File: templates/drivers/list.html -->
+
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .driver-page {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    .driver-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+
+    .driver-header h2 {
+        font-size: 25px;
+        font-weight: 750;
+        color: var(--text-main);
+        margin-bottom: 5px;
+    }
+
+    .driver-header p {
+        color: var(--text-muted);
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .driver-add-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: var(--primary);
+        color: white;
+        border: 1px solid var(--primary);
+        border-radius: 9px;
+        padding: 11px 18px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .driver-add-btn:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .driver-stat {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        box-shadow: var(--shadow);
+        padding: 19px;
+        height: 100%;
+    }
+
+    .driver-stat-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+
+    .driver-stat-label {
+        font-size: 12px;
+        font-weight: 650;
+        color: var(--text-muted);
+    }
+
+    .driver-stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-size: 19px;
+    }
+
+    .driver-stat-value {
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1.2;
+        color: var(--text-main);
+    }
+
+    .driver-stat-description {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 6px;
+    }
+
+    .driver-panel {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 13px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .driver-panel-header {
+        padding: 19px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .driver-panel-title {
+        font-size: 16px;
+        font-weight: 750;
+        color: var(--text-main);
+        margin: 0;
+    }
+
+    .driver-panel-subtitle {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin: 4px 0 0;
+    }
+
+    .driver-filter-form {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 9px;
+        width: 100%;
+        max-width: 760px;
+    }
+
+    .driver-search-wrap {
+        position: relative;
+        flex: 1;
+        min-width: 190px;
+    }
+
+    .driver-search-wrap i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #91a097;
+    }
+
+    .driver-search,
+    .driver-select {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 12px;
+        background: white;
+        outline: none;
+    }
+
+    .driver-search {
+        width: 100%;
+        padding-left: 36px;
+    }
+
+    .driver-select {
+        min-width: 145px;
+        max-width: 190px;
+    }
+
+    .driver-search:focus,
+    .driver-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(23, 107, 82, .09);
+    }
+
+    .driver-filter-btn {
+        border: 1px solid var(--primary);
+        background: var(--primary);
+        color: white;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .driver-filter-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .driver-clear {
+        color: var(--text-muted);
+        font-size: 12px;
+        padding: 8px;
+        text-decoration: none;
+    }
+
+    .driver-clear:hover {
+        color: var(--primary);
+    }
+
+    .driver-table {
+        min-width: 850px;
+        margin: 0;
+    }
+
+    .driver-table thead th {
+        background: #f8faf9;
+        color: #718078;
+        font-size: 10px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        padding: 15px 18px;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .driver-table tbody td {
+        padding: 15px 18px;
+        vertical-align: middle;
+        border-bottom: 1px solid #eef2ef;
+        color: var(--text-main);
+        font-size: 12px;
+    }
+
+    .driver-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .driver-table tbody tr:hover {
+        background: #fbfdfc;
+    }
+
+    .driver-sort {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .driver-sort:hover {
+        color: var(--primary);
+    }
+
+    .driver-identity {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .driver-avatar {
+        width: 39px;
+        height: 39px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+    .driver-name {
+        font-weight: 750;
+        color: var(--text-main);
+    }
+
+    .driver-id {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 3px;
+    }
+
+    .driver-mobile {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #52635a;
+        white-space: nowrap;
+    }
+
+    .driver-mobile i {
+        color: var(--primary);
+    }
+
+    .driver-organization {
+        font-weight: 650;
+        color: var(--text-main);
+    }
+
+    .driver-occupation {
+        display: inline-flex;
+        align-items: center;
+        background: #f1f5f3;
+        color: #53645a;
+        padding: 5px 9px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .driver-actions {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+    }
+
+    .driver-action {
+        width: 33px;
+        height: 33px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: white;
+        color: #65746b;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .driver-action:hover {
+        background: var(--primary-light);
+        border-color: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .driver-action.delete:hover {
+        background: #fff1f0;
+        border-color: #f5d1cd;
+        color: #c0392b;
+    }
+
+    .driver-empty {
+        padding: 55px 20px !important;
+        text-align: center;
+    }
+
+    .driver-empty i {
+        display: block;
+        font-size: 40px;
+        color: #aab8b0;
+        margin-bottom: 12px;
+    }
+
+    .driver-empty h6 {
+        font-weight: 750;
+        margin-bottom: 6px;
+    }
+
+    .driver-empty p {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 16px;
+    }
+
+    .driver-pagination {
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .driver-pagination-info {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .driver-pagination .page-link {
+        color: var(--primary);
+        border-color: var(--border);
+        font-size: 12px;
+    }
+
+    .driver-pagination .page-item.active .page-link {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .driver-header {
+            align-items: flex-start;
+        }
+
+        .driver-header h2 {
+            font-size: 21px;
+        }
+
+        .driver-add-btn {
+            width: 100%;
+        }
+
+        .driver-filter-form {
+            max-width: none;
+        }
+
+        .driver-search-wrap {
+            flex-basis: 100%;
+        }
+
+        .driver-select {
+            flex: 1;
+            max-width: none;
+        }
+
+        .driver-stat {
+            padding: 15px;
+        }
+
+        .driver-stat-value {
+            font-size: 24px;
+        }
+
+        .driver-pagination {
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="driver-page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="driver-header">
+        <div>
+            <h2>Driver Register</h2>
+            <p>Manage driver information, contact details and company associations.</p>
+        </div>
+
+        <a href="{% url 'drivers_add' %}" class="driver-add-btn">
+            <i class="bi bi-plus-lg"></i>
+            Register Driver
+        </a>
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-12 col-md-4">
+            <div class="driver-stat">
+                <div class="driver-stat-top">
+                    <span class="driver-stat-label">Registered Drivers</span>
+                    <span class="driver-stat-icon">
+                        <i class="bi bi-people"></i>
+                    </span>
+                </div>
+
+                <div class="driver-stat-value">{{ total_drivers }}</div>
+                <div class="driver-stat-description">Active driver records</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+            <div class="driver-stat">
+                <div class="driver-stat-top">
+                    <span class="driver-stat-label">Organizations</span>
+                    <span class="driver-stat-icon">
+                        <i class="bi bi-buildings"></i>
+                    </span>
+                </div>
+
+                <div class="driver-stat-value">{{ organizations_with_drivers }}</div>
+                <div class="driver-stat-description">Organizations represented</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-4">
+            <div class="driver-stat">
+                <div class="driver-stat-top">
+                    <span class="driver-stat-label">Occupation Categories</span>
+                    <span class="driver-stat-icon">
+                        <i class="bi bi-person-workspace"></i>
+                    </span>
+                </div>
+
+                <div class="driver-stat-value">{{ total_occupations }}</div>
+                <div class="driver-stat-description">Distinct occupations recorded</div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- DRIVER REGISTER -->
+
+    <div class="driver-panel">
+
+        <div class="driver-panel-header">
+
+            <div>
+                <h5 class="driver-panel-title">Registered Drivers</h5>
+                <p class="driver-panel-subtitle">
+                    Search, filter and manage driver records.
+                </p>
+            </div>
+
+            <form method="GET" class="driver-filter-form">
+
+                <div class="driver-search-wrap">
+                    <i class="bi bi-search"></i>
+
+                    <input type="text" name="q" class="driver-search" value="{{ q }}"
+                        placeholder="Search name, mobile, company or occupation..." aria-label="Search drivers">
+                </div>
+
+                <select name="organization" class="driver-select" aria-label="Filter by organization">
+                    <option value="">All organizations</option>
+
+                    {% for c in companies %}
+                    <option value="{{ c.id }}" {% if organization_filter == c.id|stringformat:"s" %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <select name="occupation" class="driver-select" aria-label="Filter by occupation">
+                    <option value="">All occupations</option>
+
+                    {% for o in occupations %}
+                    <option value="{{ o }}" {% if occupation_filter == o %}selected{% endif %}>
+                        {{ o }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <input type="hidden" name="sort" value="{{ sort }}">
+
+                <button type="submit" class="driver-filter-btn">
+                    <i class="bi bi-funnel me-1"></i>
+                    Apply
+                </button>
+
+                {% if q or organization_filter or occupation_filter %}
+                <a href="{% url 'drivers_list' %}" class="driver-clear">
+                    Clear
+                </a>
+                {% endif %}
+
+            </form>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="table driver-table">
+
+                <thead>
+                    <tr>
+                        <th>
+                            <a class="driver-sort"
+                                href="?q={{ q|urlencode }}&organization={{ organization_filter|urlencode }}&occupation={{ occupation_filter|urlencode }}&sort={% if sort == 'name' %}-name{% else %}name{% endif %}">
+                                Driver
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>Mobile Number</th>
+
+                        <th>
+                            <a class="driver-sort"
+                                href="?q={{ q|urlencode }}&organization={{ organization_filter|urlencode }}&occupation={{ occupation_filter|urlencode }}&sort={% if sort == 'organization' %}-organization{% else %}organization{% endif %}">
+                                Organization
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>
+                            <a class="driver-sort"
+                                href="?q={{ q|urlencode }}&organization={{ organization_filter|urlencode }}&occupation={{ occupation_filter|urlencode }}&sort={% if sort == 'occupation' %}-occupation{% else %}occupation{% endif %}">
+                                Occupation
+                                <i class="bi bi-arrow-down-up ms-1"></i>
+                            </a>
+                        </th>
+
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+
+                <tbody>
+
+                    {% for r in records %}
+
+                    <tr>
+
+                        <td>
+                            <div class="driver-identity">
+
+                                <div class="driver-avatar">
+                                    {{ r.name|first|upper }}
+                                </div>
+
+                                <div>
+                                    <div class="driver-name">{{ r.name }}</div>
+
+                                    <div class="driver-id">
+                                        Driver ID: {{ r.pk }}
+                                    </div>
+                                </div>
+
+                            </div>
+                        </td>
+
+                        <td>
+                            <span class="driver-mobile">
+                                <i class="bi bi-telephone"></i>
+                                {{ r.mobile_number|default:"—" }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="driver-organization">
+                                {{ r.organization.name }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="driver-occupation">
+                                {{ r.occupation|default:"Not specified" }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="driver-actions">
+
+                                <a href="{% url 'drivers_edit' r.pk %}" class="driver-action" title="Edit driver"
+                                    aria-label="Edit driver">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a href="{% url 'drivers_delete' r.pk %}" class="driver-action delete"
+                                    title="Remove driver" aria-label="Remove driver">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="5" class="driver-empty">
+
+                            <i class="bi bi-people"></i>
+
+                            {% if q or organization_filter or occupation_filter %}
+                            <h6>No matching drivers found</h6>
+                            <p>Try changing your search or filters.</p>
+
+                            <a href="{% url 'drivers_list' %}" class="btn btn-sm btn-outline-secondary">
+                                Clear filters
+                            </a>
+                            {% else %}
+                            <h6>No drivers registered yet</h6>
+                            <p>Register your first driver to populate the register.</p>
+
+                            <a href="{% url 'drivers_add' %}" class="driver-add-btn">
+                                <i class="bi bi-plus-lg"></i>
+                                Register Driver
+                            </a>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- PAGINATION -->
+
+        {% if page_obj.paginator.num_pages > 1 %}
+
+        <div class="driver-pagination">
+
+            <div class="driver-pagination-info">
+                Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+                of {{ page_obj.paginator.count }} drivers
+            </div>
+
+            <nav aria-label="Driver pagination">
+                <ul class="pagination pagination-sm mb-0">
+
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?q={{ q|urlencode }}&organization={{ organization_filter|urlencode }}&occupation={{ occupation_filter|urlencode }}&sort={{ sort|urlencode }}&page={{ page_obj.previous_page_number }}">
+                            Previous
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+
+                    {% if num == page_obj.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+
+                    {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <li class="page-item">
+                        <a class="page-link"
+                            href="?q={{ q|urlencode }}&organization={{ organization_filter|urlencode }}&occupation={{ occupation_filter|urlencode }}&sort={{ sort|urlencode }}&page={{ num }}">
+                            {{ num }}
+                        </a>
+                        </li>
+                        {% endif %}
+
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link"
+                                href="?q={{ q|urlencode }}&organization={{ organization_filter|urlencode }}&occupation={{ occupation_filter|urlencode }}&sort={{ sort|urlencode }}&page={{ page_obj.next_page_number }}">
+                                Next
+                            </a>
+                        </li>
+                        {% endif %}
+
+                </ul>
+            </nav>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

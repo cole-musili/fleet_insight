@@ -1,0 +1,458 @@
+<!-- File: templates/deletion_center/recycle_bin.html -->
+
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .rb-page {
+        max-width: 1450px;
+        margin: 0 auto;
+    }
+
+    .rb-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+
+    .rb-header h2 {
+        font-size: 25px;
+        font-weight: 750;
+        margin: 0 0 5px;
+        color: var(--text-main);
+    }
+
+    .rb-header p {
+        color: var(--text-muted);
+        font-size: 13px;
+        margin: 0;
+    }
+
+    .rb-link {
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .rb-panel {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .rb-toolbar {
+        padding: 17px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .rb-toolbar strong {
+        font-size: 14px;
+        color: var(--text-main);
+    }
+
+    .rb-search {
+        width: 100%;
+        max-width: 330px;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 12px;
+    }
+
+    .rb-table-wrap {
+        overflow-x: auto;
+    }
+
+    .rb-table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: collapse;
+    }
+
+    .rb-table th {
+        padding: 14px;
+        background: #f8faf9;
+        color: var(--text-muted);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .rb-table td {
+        padding: 14px;
+        border-top: 1px solid var(--border);
+        font-size: 12px;
+        color: var(--text-main);
+        vertical-align: middle;
+    }
+
+    .rb-record {
+        font-weight: 750;
+    }
+
+    .rb-muted {
+        color: var(--text-muted);
+        font-size: 11px;
+        margin-top: 3px;
+    }
+
+    .rb-category {
+        display: inline-block;
+        padding: 5px 9px;
+        background: #f1f5f3;
+        color: #52635a;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 750;
+    }
+
+    .rb-reason {
+        max-width: 250px;
+        color: #64746b;
+    }
+
+    .rb-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        padding: 16px 20px;
+        background: #fbfcfb;
+        border-top: 1px solid var(--border);
+    }
+
+    .rb-btn {
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .rb-restore {
+        background: var(--primary);
+        color: white;
+    }
+
+    .rb-restore:hover {
+        background: var(--primary-dark);
+    }
+
+    .rb-permanent {
+        background: #fff0ee;
+        color: #b42318;
+        border: 1px solid #f0ceca;
+    }
+
+    .rb-permanent:hover {
+        background: #fee5e2;
+    }
+
+    .rb-confirm-area {
+        display: none;
+        width: 100%;
+        padding: 14px;
+        background: #fff8e8;
+        border: 1px solid #f4dfad;
+        border-radius: 9px;
+    }
+
+    .rb-confirm-area.visible {
+        display: block;
+    }
+
+    .rb-confirm-area label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        margin: 10px 0 5px;
+        color: #795514;
+    }
+
+    .rb-confirm-area input {
+        width: 100%;
+        max-width: 450px;
+        padding: 9px 10px;
+        border: 1px solid #e5d5ad;
+        border-radius: 7px;
+        font-size: 12px;
+    }
+
+    .rb-confirm-area p {
+        font-size: 12px;
+        color: #795514;
+        margin: 0;
+    }
+
+    .rb-empty {
+        text-align: center;
+        padding: 55px 20px;
+        color: var(--text-muted);
+    }
+
+    .rb-empty i {
+        font-size: 40px;
+        display: block;
+        margin-bottom: 12px;
+        color: #aab8b0;
+    }
+
+    .rb-empty h5 {
+        font-size: 15px;
+        font-weight: 750;
+        color: var(--text-main);
+    }
+
+    @media(max-width:768px) {
+        .rb-header h2 {
+            font-size: 21px;
+        }
+
+        .rb-search {
+            max-width: none;
+        }
+
+        .rb-toolbar {
+            align-items: stretch;
+        }
+
+        .rb-toolbar>* {
+            width: 100%;
+        }
+
+        .rb-actions {
+            flex-direction: column;
+        }
+
+        .rb-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="rb-page">
+
+    <div class="rb-header">
+        <div>
+            <h2>Recycle Bin</h2>
+            <p>Restore removed records or permanently delete records that are no longer required.</p>
+        </div>
+
+        <a href="{% url 'deletion_center:dashboard' %}" class="rb-link">
+            <i class="bi bi-arrow-left me-1"></i> Back to Deletion Centre
+        </a>
+    </div>
+
+
+    <div class="rb-panel">
+
+        <div class="rb-toolbar">
+            <strong>Deleted Records ({{ deleted_records|length }})</strong>
+
+            <input type="search" id="recycleSearch" class="rb-search" value="{{ search }}"
+                placeholder="Search records, categories or reasons..." aria-label="Search deleted records">
+        </div>
+
+
+        {% if deleted_records %}
+
+        <form method="POST" id="recycleForm">
+            {% csrf_token %}
+
+            <div class="rb-table-wrap">
+                <table class="rb-table" id="recycleTable">
+
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" aria-label="Select all records">
+                            </th>
+                            <th>Record</th>
+                            <th>Category</th>
+                            <th>Reason</th>
+                            <th>Date Deleted</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for record in deleted_records %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" name="selected_records" value="{{ record.selection_id }}"
+                                    class="record-checkbox" aria-label="Select {{ record.label }}">
+                            </td>
+
+                            <td>
+                                <div class="rb-record">{{ record.label }}</div>
+                                <div class="rb-muted">Record ID: {{ record.id }}</div>
+                            </td>
+
+                            <td>
+                                <span class="rb-category">{{ record.category_label }}</span>
+                            </td>
+
+                            <td>
+                                <div class="rb-reason">
+                                    {{ record.deleted_reason|default:"No reason provided" }}
+                                </div>
+                            </td>
+
+                            <td>
+                                {% if record.deleted_at %}
+                                {{ record.deleted_at|date:"d M Y, H:i" }}
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+
+            <div class="rb-actions">
+
+                <button type="submit" name="action" value="restore" class="rb-btn rb-restore"
+                    onclick="return confirm('Restore all selected records?');">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+                    Restore Selected
+                </button>
+
+                <button type="button" id="showPermanentConfirmation" class="rb-btn rb-permanent">
+                    <i class="bi bi-trash3 me-1"></i>
+                    Permanently Delete Selected
+                </button>
+
+
+                <div class="rb-confirm-area" id="permanentConfirmation">
+
+                    <p>
+                        <strong>Warning:</strong> Permanent deletion cannot be undone.
+                        Records protected by existing database relationships will not be deleted.
+                    </p>
+
+                    <label for="permanentReason">Reason for permanent deletion</label>
+                    <input type="text" name="reason" id="permanentReason" maxlength="500"
+                        placeholder="Explain why these records must be permanently removed">
+
+                    <label for="permanentPhrase">
+                        Type PERMANENTLY DELETE to confirm
+                    </label>
+                    <input type="text" name="confirmation" id="permanentPhrase" placeholder="PERMANENTLY DELETE">
+
+                    <button type="submit" name="action" value="permanent_delete" class="rb-btn rb-permanent mt-3">
+                        Confirm Permanent Deletion
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+        {% else %}
+
+        <div class="rb-empty">
+            <i class="bi bi-recycle"></i>
+            <h5>Recycle Bin is Empty</h5>
+            <p>There are currently no deleted records to restore or permanently remove.</p>
+        </div>
+
+        {% endif %}
+
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const search = document.getElementById("recycleSearch");
+        const table = document.getElementById("recycleTable");
+        const selectAll = document.getElementById("selectAll");
+        const confirmation = document.getElementById("permanentConfirmation");
+        const showConfirmation = document.getElementById("showPermanentConfirmation");
+
+        if (search && table) {
+            search.addEventListener("input", function () {
+                const term = this.value.toLowerCase();
+
+                table.querySelectorAll("tbody tr").forEach(function (row) {
+                    row.style.display = row.textContent.toLowerCase().includes(term)
+                        ? ""
+                        : "none";
+                });
+            });
+        }
+
+        if (selectAll) {
+            selectAll.addEventListener("change", function () {
+                document.querySelectorAll(".record-checkbox").forEach(function (checkbox) {
+                    const row = checkbox.closest("tr");
+                    if (row && row.style.display !== "none") {
+                        checkbox.checked = selectAll.checked;
+                    }
+                });
+            });
+        }
+
+        if (showConfirmation && confirmation) {
+            showConfirmation.addEventListener("click", function () {
+                const selected = document.querySelectorAll(
+                    ".record-checkbox:checked"
+                ).length;
+
+                if (!selected) {
+                    alert("Select at least one record first.");
+                    return;
+                }
+
+                confirmation.classList.toggle("visible");
+                confirmation.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+            });
+        }
+
+        const form = document.getElementById("recycleForm");
+
+        if (form) {
+            form.addEventListener("submit", function (event) {
+                const submitter = event.submitter;
+
+                if (submitter && submitter.value === "permanent_delete") {
+                    const selected = document.querySelectorAll(
+                        ".record-checkbox:checked"
+                    ).length;
+
+                    const reason = document.getElementById("permanentReason").value.trim();
+                    const phrase = document.getElementById("permanentPhrase").value.trim();
+
+                    if (!selected || !reason || phrase !== "PERMANENTLY DELETE") {
+                        event.preventDefault();
+                        alert("Select records, provide a reason and enter the exact confirmation phrase.");
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
