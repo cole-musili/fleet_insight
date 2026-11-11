@@ -12,7 +12,6 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 
 from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 from reportlab.lib import colors
@@ -431,115 +430,37 @@ def get_report_rows(data):
 # ---------------------------------------------------------
 
 def export_excel(request):
+    """
+    Export the currently selected report as a clean data extract.
+
+    The worksheet contains only:
+    - Column headers in the first row.
+    - Data records from the second row onward.
+
+    No report title, branding, generation timestamp, filter summary,
+    merged cells, or decorative report formatting is added.
+    """
 
     data = get_report_data(request)
-
     headers, rows = get_report_rows(data)
 
     workbook = Workbook()
-
     sheet = workbook.active
-    sheet.title = "Fleet Report"
+    sheet.title = "Data"
 
-    sheet.append(["FLEET INSIGHTS"])
-    sheet.append([data["report_title"]])
-    sheet.append([
-        "Generated",
-        timezone.localtime().strftime("%d %B %Y %H:%M"),
-    ])
-    sheet.append([
-        "Company filter",
-        data["filters"]["company"] or "All companies",
-    ])
-    sheet.append([])
+    # Row 1: column names. Rows 2 onward: actual records.
     sheet.append(headers)
 
     for row in rows:
         sheet.append(row)
 
-    # Professional worksheet styling
-    green = "145A40"
-    light_green = "E9F5EE"
+    # Keep the worksheet convenient to inspect without adding report content.
+    # These settings do not add extra rows or alter the exported values.
+    sheet.freeze_panes = "A2"
 
-    sheet.merge_cells(
-        start_row=1, start_column=1,
-        end_row=1, end_column=len(headers)
-    )
-
-    sheet.merge_cells(
-        start_row=2, start_column=1,
-        end_row=2, end_column=len(headers)
-    )
-
-    sheet["A1"].font = Font(
-        size=18, bold=True, color="FFFFFF"
-    )
-    sheet["A1"].fill = PatternFill(
-        "solid", fgColor=green
-    )
-
-    sheet["A2"].font = Font(
-        size=12, bold=True, color=green
-    )
-
-    header_row = 6
-
-    for cell in sheet[header_row]:
-
-        cell.font = Font(
-            bold=True,
-            color="FFFFFF",
-        )
-
-        cell.fill = PatternFill(
-            "solid",
-            fgColor=green,
-        )
-
-        cell.alignment = Alignment(
-            horizontal="center",
-            vertical="center",
-            wrap_text=True,
-        )
-
-    for row in sheet.iter_rows(
-        min_row=header_row + 1
-    ):
-
-        for cell in row:
-
-            cell.alignment = Alignment(
-                vertical="center",
-                wrap_text=True,
-            )
-
-            if cell.row % 2 == 0:
-                cell.fill = PatternFill(
-                    "solid",
-                    fgColor=light_green,
-                )
-
-    for column in sheet.columns:
-
-        max_length = max(
-            len(str(cell.value or ""))
-            for cell in column
-        )
-
-        column_letter = get_column_letter(
-            column[0].column
-        )
-
-        sheet.column_dimensions[
-            column_letter
-        ].width = min(max(max_length + 3, 14), 38)
-
-    sheet.freeze_panes = "A7"
-    sheet.auto_filter.ref = (
-        f"A6:{get_column_letter(len(headers))}{sheet.max_row}"
-    )
-
-    sheet.sheet_view.showGridLines = False
+    if headers:
+        last_column = get_column_letter(len(headers))
+        sheet.auto_filter.ref = f"A1:{last_column}{sheet.max_row}"
 
     response = HttpResponse(
         content_type=(
@@ -558,7 +479,6 @@ def export_excel(request):
     )
 
     workbook.save(response)
-
     return response
 
 
